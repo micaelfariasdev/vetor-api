@@ -1,0 +1,23 @@
+from rest_framework import serializers
+from engenharia.models import DespesasMes, DespesasItem
+from django.contrib.auth.models import User
+
+class DespesasMesSerializer(serializers.ModelSerializer):
+    itens = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DespesasMes
+        fields = ['id', 'author', 'criado_em', 'atualizado_em', 'mes', 'ano', 'itens']
+
+    def get_itens(self, obj):
+        itens = DespesasItem.objects.filter(despesas_mes=obj)
+        return DespesasItemSerializer(itens, many=True).data
+    
+class DespesasItemSerializer(serializers.ModelSerializer):
+    despesas_mes = serializers.PrimaryKeyRelatedField(queryset=DespesasMes.objects.all())  
+    class Meta:
+        model = DespesasItem
+        fields = ['id', 'despesas_mes', 'data', 'documento', 'titulo', 'empresa', 'valor', 'descricao']
+
+    
+    
