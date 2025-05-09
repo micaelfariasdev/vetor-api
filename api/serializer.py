@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 class DespesasMesSerializer(serializers.ModelSerializer):
     itens = serializers.SerializerMethodField()
+    author = serializers.CharField(source='author.username', read_only=True)
 
     class Meta:
         model = DespesasMes
