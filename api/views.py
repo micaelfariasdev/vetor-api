@@ -43,7 +43,9 @@ class ExcelToItensDespesas(APIView):
     
 
     def post(self, request, *args, **kwargs):
+        from datetime import datetime
         despesas_mes = request.POST.get('Object')
+        
         despesas_clear = DespesasItem.objects.filter(despesas_mes=despesas_mes).all()
         file = request.FILES.get('file')
         if not file:
@@ -86,5 +88,7 @@ class ExcelToItensDespesas(APIView):
                     print(serializer.errors)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
+        att = DespesasMes.objects.get(id=despesas_mes)
+        att.atualizado_em = datetime.now()
+        att.save()
         return Response({"message": "Arquivo processado com sucesso"}, status=status.HTTP_200_OK)
