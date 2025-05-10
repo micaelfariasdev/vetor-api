@@ -17,6 +17,6 @@ class DespesasItem(models.Model):
     data = models.DateField()
     documento = models.CharField(max_length=50)
     titulo = models.CharField(max_length=50)
-    empresa = models.CharField(max_length=50)
+    empresa = models.CharField(max_length=150)
     valor = models.DecimalField(max_digits=10, decimal_places=2)
-    descricao = models.TextField()  
+    descricao = models.TextField(null=True, blank=True)
