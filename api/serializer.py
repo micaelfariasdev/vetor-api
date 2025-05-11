@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from engenharia.models import DespesasMes, DespesasItem
+from engenharia.models import DespesasMes, DespesasItem, Obras
 from django.contrib.auth.models import User
 
 
@@ -8,10 +8,11 @@ class DespesasMesSerializer(serializers.ModelSerializer):
     author = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), required=True)
     username = serializers.CharField(source='author.username', read_only=True)
+    obra_name = serializers.CharField(source='obra.nome', read_only=True)
 
     class Meta:
         model = DespesasMes
-        fields = ['id','author', 'username', 'criado_em',
+        fields = ['id', 'obra', 'obra_name','author', 'username', 'criado_em',
                   'atualizado_em', 'mes', 'ano', 'itens']
 
     def get_itens(self, obj):
@@ -27,3 +28,9 @@ class DespesasItemSerializer(serializers.ModelSerializer):
         model = DespesasItem
         fields = ['id', 'despesas_mes', 'data', 'documento',
                   'titulo', 'empresa', 'valor', 'descricao']
+
+class ObrasSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Obras
+        fields = ['id', 'nome', 'endereço']

@@ -1,11 +1,11 @@
 from rest_framework.viewsets import ModelViewSet
-from .serializer import DespesasMesSerializer, DespesasItemSerializer
-from engenharia.models import DespesasMes, DespesasItem
+from .serializer import DespesasMesSerializer, DespesasItemSerializer, ObrasSerializer
+from engenharia.models import DespesasMes, DespesasItem, Obras
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
+from datetime import datetime
 
-# Create your views here.
 
 
 class DespesasMesApiViewSet(ModelViewSet):
@@ -28,6 +28,10 @@ class DespesasItemApiViewSet(ModelViewSet):
     serializer_class = DespesasItemSerializer
 
     def partial_update(self, request, *args, **kwargs):
+        despesas_mes = request.POST.get('Object')
+        att = DespesasMes.objects.get(id=despesas_mes)
+        att.atualizado_em = datetime.now()
+        att.save()
         return super().partial_update(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -43,7 +47,6 @@ class ExcelToItensDespesas(APIView):
     
 
     def post(self, request, *args, **kwargs):
-        from datetime import datetime
         despesas_mes = request.POST.get('Object')
         
         despesas_clear = DespesasItem.objects.filter(despesas_mes=despesas_mes).all()
@@ -92,3 +95,7 @@ class ExcelToItensDespesas(APIView):
         att.atualizado_em = datetime.now()
         att.save()
         return Response({"message": "Arquivo processado com sucesso"}, status=status.HTTP_200_OK)
+
+class ObrasApiViewSet(ModelViewSet):
+    queryset = Obras.objects.all()
+    serializer_class = ObrasSerializer
