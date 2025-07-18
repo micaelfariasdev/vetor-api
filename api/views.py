@@ -1,11 +1,10 @@
 from rest_framework.viewsets import ModelViewSet
-from .serializer import DespesasMesSerializer, DespesasItemSerializer, ObrasSerializer
-from engenharia.models import DespesasMes, DespesasItem, Obras
+from .serializer import DespesasMesSerializer, DespesasItemSerializer, ObrasSerializer, ServicoCronogramaSerializer
+from engenharia.models import DespesasMes, DespesasItem, Obras, ServicoCronograma
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from datetime import datetime
-
 
 
 class DespesasMesApiViewSet(ModelViewSet):
@@ -44,12 +43,12 @@ class DespesasItemApiViewSet(ModelViewSet):
 
 class ExcelToItensDespesas(APIView):
     serializer_class = DespesasItemSerializer
-    
 
     def post(self, request, *args, **kwargs):
         despesas_mes = request.POST.get('Object')
-        
-        despesas_clear = DespesasItem.objects.filter(despesas_mes=despesas_mes).all()
+
+        despesas_clear = DespesasItem.objects.filter(
+            despesas_mes=despesas_mes).all()
         file = request.FILES.get('file')
         if not file:
             return Response({"error": "Porfavor, envie o arquivo correto"}, status=status.HTTP_400_BAD_REQUEST)
@@ -96,6 +95,68 @@ class ExcelToItensDespesas(APIView):
         att.save()
         return Response({"message": "Arquivo processado com sucesso"}, status=status.HTTP_200_OK)
 
+
 class ObrasApiViewSet(ModelViewSet):
     queryset = Obras.objects.all()
     serializer_class = ObrasSerializer
+
+
+class XMLToCronograma(APIView):
+    serializer_class = ServicoCronogramaSerializer
+
+    def post(self, request, *args, **kwargs):
+        cronograma = request.POST.get('cronograma')
+        file = request.FILES.get('file')
+        if not file:
+            return Response({"error": "Por favor, envie o arquivo XML correto"}, status=status.HTTP_400_BAD_REQUEST)
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(file)
+        root = tree.getroot()
+
+        ns = {'p': 'http://schemas.microsoft.com/project'}
+
+        u_lvl1 = ''
+        u_lvl2 = ''
+        u_lvl3 = ''
+
+        for task in root.findall('p:Tasks/p:Task', ns):
+            nome = task.find('p:Name', ns)
+            inicio = task.find('p:Start', ns)
+            fim = task.find('p:Finish', ns)
+            nivel = task.find('p:OutlineLevel', ns)
+            intnivel = int(nivel.text)
+
+            if intnivel == 0:
+                continue
+
+            if intnivel == 1:
+                pai = None
+            elif intnivel == 2:
+                pai = u_lvl1
+            elif intnivel == 3:
+                pai = u_lvl2
+            elif intnivel == 4:
+                pai = u_lvl3
+
+            data = {
+                'cronograma': cronograma,
+                'pai': pai.id if pai else None,
+                'titulo': nome.text if nome is not None else '',
+                'inicio': inicio.text.split('T')[0] if inicio is not None else '',
+                'fim': fim.text.split('T')[0] if fim is not None else '',
+                'nivel': intnivel,
+            }
+            serializer = self.serializer_class(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                match intnivel:
+                    case 1:
+                        u_lvl1 = ServicoCronograma.objects.all().last()
+                    case 2:
+                        u_lvl2 = ServicoCronograma.objects.all().last()
+                    case 3:
+                        u_lvl3 = ServicoCronograma.objects.all().last()
+            else:
+                print(serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Cronograma importado com sucesso"}, status=status.HTTP_200_OK)

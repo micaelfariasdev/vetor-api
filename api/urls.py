@@ -12,4 +12,5 @@ urlpatterns = router.urls
 
 urlpatterns += [
     path('excel/', views.ExcelToItensDespesas.as_view(), name='excel-to-itens-despesas'),
+    path('xmlcronograma/', views.XMLToCronograma.as_view(), name='xml-cronograma'),
 ]

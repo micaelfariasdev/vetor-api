@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from engenharia.models import DespesasMes, DespesasItem, Obras
+from engenharia.models import DespesasMes, DespesasItem, Obras, Cronograma, ServicoCronograma
 from django.contrib.auth.models import User
 
 
@@ -12,7 +12,7 @@ class DespesasMesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DespesasMes
-        fields = ['id', 'obra', 'obra_name','author', 'username', 'criado_em',
+        fields = ['id', 'obra', 'obra_name', 'author', 'username', 'criado_em',
                   'atualizado_em', 'mes', 'ano', 'itens']
 
     def get_itens(self, obj):
@@ -29,8 +29,33 @@ class DespesasItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'despesas_mes', 'data', 'documento',
                   'titulo', 'empresa', 'valor', 'descricao']
 
+
 class ObrasSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Obras
         fields = ['id', 'nome', 'endereço']
+
+
+class CronogramaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Cronograma
+        fields = ['author',
+                  'obra',
+                  'criado_em',
+                  'atualizado_em']
+
+
+class ServicoCronogramaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ServicoCronograma
+        fields = ['cronograma',
+                  'pai',
+                  'nivel',
+                  'titulo',
+                  'inicio',
+                  'fim',
+                  'progresso',
+                  'codigo']

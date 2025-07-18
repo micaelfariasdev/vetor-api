@@ -136,3 +136,7 @@ $RECYCLE.BIN/
 
 # ambiente virtual
 venv/
+
+os.path.join(BASE_DIR, 'db.sqlite3')
+sky2.xml
+test.py
