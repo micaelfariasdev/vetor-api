@@ -82,7 +82,13 @@ class ServicoCronograma(models.Model):
         sequencia = f"{total:03d}" if self.pai else f"{total:02d}"
         return prefixo + sequencia
 
-    def ajustar_datas_por_dependencia(self, propagacao=True):
+    def ajustar_datas_por_dependencia(self, propagacao=True, atualizados=None):
+        if atualizados is None:
+            atualizados = set()
+
+        if self.pk in atualizados:
+            return  # evita reprocessar mesmo objeto
+
         maior_fim = self.predecessores.aggregate(Max('fim'))['fim__max']
 
         if maior_fim:
@@ -93,11 +99,13 @@ class ServicoCronograma(models.Model):
             if self.inicio != nova_inicio or self.fim != nova_fim:
                 self.inicio = nova_inicio
                 self.fim = nova_fim
-                self.save()  # agora salva antes de propagar
+                super().save(update_fields=['inicio', 'fim'])
+                atualizados.add(self.pk)
 
         if propagacao:
             for sucessor in self.sucessores.all():
-                sucessor.ajustar_datas_por_dependencia()
+                sucessor.ajustar_datas_por_dependencia(propagacao=True, atualizados=atualizados)
+
 
     def ajustar_final(self):
         self.fim = self.inicio + timedelta(days=self.dias)
