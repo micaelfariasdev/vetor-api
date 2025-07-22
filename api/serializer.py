@@ -38,13 +38,11 @@ class ObrasSerializer(serializers.ModelSerializer):
 
 
 class CronogramaSerializer(serializers.ModelSerializer):
-
+    obra_name = serializers.CharField(source='obra.nome', read_only=True)
+    
     class Meta:
         model = Cronograma
-        fields = ['author',
-                  'obra',
-                  'criado_em',
-                  'atualizado_em']
+        fields = '__all__'
 
 
 class ServicoCronogramaSerializer(serializers.ModelSerializer):
