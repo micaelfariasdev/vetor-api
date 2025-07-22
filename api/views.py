@@ -118,13 +118,15 @@ class XMLToCronograma(APIView):
     serializer_class = ServicoCronogramaSerializer
 
     def post(self, request, *args, **kwargs):
-        cronograma = request.POST.get('cronograma')
+        from django.shortcuts import get_object_or_404
+
+        cronograma_id = request.POST.get('cronograma')
+        cronograma_obj = get_object_or_404(Cronograma, id=cronograma_id)
         file = request.FILES.get('file')
         if not file:
             return Response({"error": "Por favor, envie o arquivo XML correto"}, status=status.HTTP_400_BAD_REQUEST)
         ServicoCronograma.objects.filter(cronograma=cronograma).delete()
 
-        
         import xml.etree.ElementTree as ET
         tree = ET.parse(file)
         root = tree.getroot()
@@ -171,7 +173,7 @@ class XMLToCronograma(APIView):
             dias = (data_fim - data_inicio).days if data_inicio and data_fim else 0
 
             data = {
-                'cronograma': cronograma,
+                'cronograma': cronograma_obj,
                 'pai': pai.id if pai else None,
                 'uid': int(uid.text),
                 'titulo': nome.text if nome is not None else '',
@@ -180,7 +182,7 @@ class XMLToCronograma(APIView):
                 'dias': dias,
                 'nivel': intnivel,
             }
-            
+
             predecessores_objs = []
             for x in predecessors:
                 if x is not None and x > 0:
