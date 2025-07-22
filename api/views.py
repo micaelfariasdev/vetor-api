@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from .serializer import DespesasMesSerializer, DespesasItemSerializer, ObrasSerializer, ServicoCronogramaSerializer, CronogramaSerializer
@@ -117,25 +119,24 @@ class ServicosCronogramasApiViewSet(ModelViewSet):
 class XMLToCronograma(APIView):
     serializer_class = ServicoCronogramaSerializer
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
-        from django.shortcuts import get_object_or_404
-
         cronograma_id = request.POST.get('cronograma')
         cronograma_obj = get_object_or_404(Cronograma, id=cronograma_id)
         file = request.FILES.get('file')
         if not file:
             return Response({"error": "Por favor, envie o arquivo XML correto"}, status=status.HTTP_400_BAD_REQUEST)
-        ServicoCronograma.objects.filter(cronograma=cronograma_id).delete()
+
+        ServicoCronograma.objects.filter(cronograma=cronograma_obj).delete()
 
         import xml.etree.ElementTree as ET
         tree = ET.parse(file)
         root = tree.getroot()
-
         ns = {'p': 'http://schemas.microsoft.com/project'}
 
-        u_lvl1 = ''
-        u_lvl2 = ''
-        u_lvl3 = ''
+        u_lvl1 = None
+        u_lvl2 = None
+        u_lvl3 = None
 
         for task in root.findall('p:Tasks/p:Task', ns):
             predecessors = []
@@ -161,6 +162,8 @@ class XMLToCronograma(APIView):
                 pai = u_lvl2
             elif intnivel == 4:
                 pai = u_lvl3
+            else:
+                pai = None
 
             inicio_str = inicio.text if inicio is not None else None
             fim_str = fim.text if fim is not None else None
@@ -196,13 +199,13 @@ class XMLToCronograma(APIView):
                 obj.predecessores.set(predecessores_objs)
 
                 if intnivel == 1:
-                    u_lvl1 = ServicoCronograma.objects.all().last()
+                    u_lvl1 = obj
                 elif intnivel == 2:
-                    u_lvl2 = ServicoCronograma.objects.all().last()
+                    u_lvl2 = obj
                 elif intnivel == 3:
-                    u_lvl3 = ServicoCronograma.objects.all().last()
-
+                    u_lvl3 = obj
             else:
                 print(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
         return Response({"message": "Cronograma importado com sucesso"}, status=status.HTTP_200_OK)
