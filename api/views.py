@@ -177,8 +177,9 @@ class XMLToCronograma(APIView):
                 'dias': dias,
                 'nivel': intnivel,
             }
+            
             predecessores_objs = [
-                ServicoCronograma.objects.get(uid=x)
+                ServicoCronograma.objects.filter(uid=x).first()
                 for x in predecessors
                 if x is not None and x > 0
             ]
