@@ -178,11 +178,12 @@ class XMLToCronograma(APIView):
                 'nivel': intnivel,
             }
             
-            predecessores_objs = [
-                ServicoCronograma.objects.filter(uid=x).first()
-                for x in predecessors
-                if x is not None and x > 0
-            ]
+            predecessores_objs = []
+            for x in predecessors:
+                if x is not None and x > 0:
+                    pred = ServicoCronograma.objects.filter(uid=x).first()
+                    if pred:
+                        predecessores_objs.append(pred)
 
             serializer = self.serializer_class(data=data)
             if serializer.is_valid():
