@@ -10,16 +10,11 @@ def atualizar_sucessores_quando_dependencia_mudar(sender, instance, action, **kw
         instance.ajustar_datas_por_dependencia()
         instance.save(update_fields=['inicio', 'fim'])
 
-
 @receiver(post_save, sender=ServicoCronograma)
-def atualizar_sucessores_ao_salvar(sender, instance, **kwargs):
+def atualizar_dados_cronograma(sender, instance, **kwargs):
     instance.ajustar_datas_por_dependencia()
 
-
-@receiver(post_save, sender=ServicoCronograma)
-def atualizar_fim_cronograma(sender, instance, **kwargs):
-    cronograma = instance.cronograma  # Corrigido: campo minúsculo
-    maior_fim = cronograma.servicos.aggregate(Max('fim'))['fim__max']
-    if maior_fim and cronograma.final != maior_fim:
-        cronograma.final = maior_fim
+    cronograma = instance.cronograma
+    if cronograma.final is None or instance.fim > cronograma.final:
+        cronograma.final = instance.fim
         cronograma.save(update_fields=['final'])
