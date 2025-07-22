@@ -122,6 +122,9 @@ class XMLToCronograma(APIView):
         file = request.FILES.get('file')
         if not file:
             return Response({"error": "Por favor, envie o arquivo XML correto"}, status=status.HTTP_400_BAD_REQUEST)
+        ServicoCronograma.objects.filter(cronograma=cronograma).delete()
+
+        
         import xml.etree.ElementTree as ET
         tree = ET.parse(file)
         root = tree.getroot()
