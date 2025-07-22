@@ -173,7 +173,7 @@ class XMLToCronograma(APIView):
             dias = (data_fim - data_inicio).days if data_inicio and data_fim else 0
 
             data = {
-                'cronograma': cronograma_obj,
+                'cronograma': cronograma_obj.id,
                 'pai': pai.id if pai else None,
                 'uid': int(uid.text),
                 'titulo': nome.text if nome is not None else '',
