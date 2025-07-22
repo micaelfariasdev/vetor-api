@@ -188,13 +188,13 @@ class XMLToCronograma(APIView):
                 obj = serializer.save()
                 obj.predecessores.set(predecessores_objs)
 
-                match intnivel:
-                    case 1:
-                        u_lvl1 = ServicoCronograma.objects.all().last()
-                    case 2:
-                        u_lvl2 = ServicoCronograma.objects.all().last()
-                    case 3:
-                        u_lvl3 = ServicoCronograma.objects.all().last()
+                if intnivel == 1:
+                    u_lvl1 = ServicoCronograma.objects.all().last()
+                elif intnivel == 2:
+                    u_lvl2 = ServicoCronograma.objects.all().last()
+                elif intnivel == 3:
+                    u_lvl3 = ServicoCronograma.objects.all().last()
+
             else:
                 print(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
