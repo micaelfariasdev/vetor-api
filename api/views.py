@@ -1,6 +1,7 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
-from .serializer import DespesasMesSerializer, DespesasItemSerializer, ObrasSerializer, ServicoCronogramaSerializer
-from engenharia.models import DespesasMes, DespesasItem, Obras, ServicoCronograma
+from .serializer import DespesasMesSerializer, DespesasItemSerializer, ObrasSerializer, ServicoCronogramaSerializer, CronogramaSerializer
+from engenharia.models import DespesasMes, DespesasItem, Obras, ServicoCronograma, Cronograma
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -101,6 +102,18 @@ class ObrasApiViewSet(ModelViewSet):
     serializer_class = ObrasSerializer
 
 
+class CronogramasApiViewSet(ModelViewSet):
+    queryset = Cronograma.objects.all()
+    serializer_class = CronogramaSerializer
+
+
+class ServicosCronogramasApiViewSet(ModelViewSet):
+    queryset = ServicoCronograma.objects.all()
+    serializer_class = ServicoCronogramaSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['cronograma']
+
+
 class XMLToCronograma(APIView):
     serializer_class = ServicoCronogramaSerializer
 
@@ -120,11 +133,17 @@ class XMLToCronograma(APIView):
         u_lvl3 = ''
 
         for task in root.findall('p:Tasks/p:Task', ns):
+            predecessors = []
             nome = task.find('p:Name', ns)
+            uid = task.find('p:UID', ns)
             inicio = task.find('p:Start', ns)
             fim = task.find('p:Finish', ns)
             nivel = task.find('p:OutlineLevel', ns)
             intnivel = int(nivel.text)
+            for pred in task.findall('p:PredecessorLink', ns):
+                pred_uid = pred.find('p:PredecessorUID', ns)
+                if pred_uid is not None:
+                    predecessors.append(int(pred_uid.text))
 
             if intnivel == 0:
                 continue
@@ -138,17 +157,37 @@ class XMLToCronograma(APIView):
             elif intnivel == 4:
                 pai = u_lvl3
 
+            inicio_str = inicio.text if inicio is not None else None
+            fim_str = fim.text if fim is not None else None
+
+            data_inicio = datetime.strptime(inicio_str.split(
+                'T')[0], '%Y-%m-%d').date() if inicio_str else None
+            data_fim = datetime.strptime(fim_str.split(
+                'T')[0], '%Y-%m-%d').date() if fim_str else None
+
+            dias = (data_fim - data_inicio).days if data_inicio and data_fim else 0
+
             data = {
                 'cronograma': cronograma,
                 'pai': pai.id if pai else None,
+                'uid': int(uid.text),
                 'titulo': nome.text if nome is not None else '',
-                'inicio': inicio.text.split('T')[0] if inicio is not None else '',
-                'fim': fim.text.split('T')[0] if fim is not None else '',
+                'inicio': data_inicio,
+                'fim': data_fim,
+                'dias': dias,
                 'nivel': intnivel,
             }
+            predecessores_objs = [
+                ServicoCronograma.objects.get(uid=x)
+                for x in predecessors
+                if x is not None and x > 0
+            ]
+
             serializer = self.serializer_class(data=data)
             if serializer.is_valid():
-                serializer.save()
+                obj = serializer.save()
+                obj.predecessores.set(predecessores_objs)
+
                 match intnivel:
                     case 1:
                         u_lvl1 = ServicoCronograma.objects.all().last()

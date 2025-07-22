@@ -51,11 +51,4 @@ class ServicoCronogramaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ServicoCronograma
-        fields = ['cronograma',
-                  'pai',
-                  'nivel',
-                  'titulo',
-                  'inicio',
-                  'fim',
-                  'progresso',
-                  'codigo']
+        fields = '__all__'

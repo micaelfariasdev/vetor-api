@@ -17,7 +17,7 @@ class DespesasMesAdimin(admin.ModelAdmin):
 class ServicoCronogramaInline(admin.TabularInline):
     model = ServicoCronograma
     extra = 0
-    fields = ['nivel', 'pai', 'titulo', 'inicio', 'fim', 'progresso']
+    fields = ['titulo','dias', 'inicio', 'fim', 'progresso']
     show_change_link = True
 
 
@@ -31,8 +31,9 @@ class CronogramaAdmin(admin.ModelAdmin):
 
 @admin.register(ServicoCronograma)
 class ServicoCronogramaAdmin(admin.ModelAdmin):
-    list_display = ['titulo', 'cronograma', 'nivel',
-                    'pai', 'inicio', 'fim', 'progresso']
+    list_editable = ['dias']
+    list_display = ['uid','titulo','dias','inicio', 'fim', 'progresso']
     list_filter = ['nivel', 'cronograma__obra']
     search_fields = ['titulo', 'cronograma__obra__nome']
     autocomplete_fields = ['pai', 'cronograma']
+    readonly_fields = ['uid', 'codigo']
