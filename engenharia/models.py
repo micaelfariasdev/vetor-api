@@ -82,29 +82,29 @@ class ServicoCronograma(models.Model):
         sequencia = f"{total:03d}" if self.pai else f"{total:02d}"
         return prefixo + sequencia
 
-    def ajustar_datas_por_dependencia(self, propagacao=True, atualizados=None):
-        if atualizados is None:
-            atualizados = set()
+    # def ajustar_datas_por_dependencia(self, propagacao=True, atualizados=None):
+    #     if atualizados is None:
+    #         atualizados = set()
 
-        if self.pk in atualizados:
-            return  # evita reprocessar mesmo objeto
+    #     if self.pk in atualizados:
+    #         return  # evita reprocessar mesmo objeto
 
-        maior_fim = self.predecessores.aggregate(Max('fim'))['fim__max']
+    #     maior_fim = self.predecessores.aggregate(Max('fim'))['fim__max']
 
-        if maior_fim:
-            duracao = (self.fim - self.inicio).days
-            nova_inicio = maior_fim + timedelta(days=1)
-            nova_fim = nova_inicio + timedelta(days=duracao)
+    #     if maior_fim:
+    #         duracao = (self.fim - self.inicio).days
+    #         nova_inicio = maior_fim + timedelta(days=1)
+    #         nova_fim = nova_inicio + timedelta(days=duracao)
 
-            if self.inicio != nova_inicio or self.fim != nova_fim:
-                self.inicio = nova_inicio
-                self.fim = nova_fim
-                super().save(update_fields=['inicio', 'fim'])
-                atualizados.add(self.pk)
+    #         if self.inicio != nova_inicio or self.fim != nova_fim:
+    #             self.inicio = nova_inicio
+    #             self.fim = nova_fim
+    #             super().save(update_fields=['inicio', 'fim'])
+    #             atualizados.add(self.pk)
 
-        if propagacao:
-            for sucessor in self.sucessores.all():
-                sucessor.ajustar_datas_por_dependencia(propagacao=True, atualizados=atualizados)
+    #     if propagacao:
+    #         for sucessor in self.sucessores.all():
+    #             sucessor.ajustar_datas_por_dependencia(propagacao=True, atualizados=atualizados)
 
 
     def ajustar_final(self):
@@ -121,4 +121,4 @@ class ServicoCronograma(models.Model):
         super().save(*args, **kwargs)
 
         # Ajusta dependências depois de salvar
-        self.ajustar_datas_por_dependencia()
+        # self.ajustar_datas_por_dependencia()
