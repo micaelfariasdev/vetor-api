@@ -18,4 +18,6 @@ urlpatterns += [
     path('excel/', views.ExcelToItensDespesas.as_view(),
          name='excel-to-itens-despesas'),
     path('xmlcronograma/', views.XMLToCronograma.as_view(), name='xml-cronograma'),
+    path('cronograma/recalcular/<int:cronograma_id>/',
+         views.recalcular_cronograma),
 ]

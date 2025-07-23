@@ -14,19 +14,12 @@ class DespesasMesAdimin(admin.ModelAdmin):
                     'atualizado_em', 'mes', 'ano',]
 
 
-class ServicoCronogramaInline(admin.TabularInline):
-    model = ServicoCronograma
-    extra = 0
-    fields = ['titulo','dias', 'inicio', 'fim', 'progresso']
-    show_change_link = True
-
 
 @admin.register(Cronograma)
 class CronogramaAdmin(admin.ModelAdmin):
     list_display = ['id', 'obra', 'author', 'criado_em', 'atualizado_em']
     list_filter = ['obra', 'author']
     search_fields = ['obra__nome', 'author__username']
-    inlines = [ServicoCronogramaInline]
 
 
 @admin.register(ServicoCronograma)

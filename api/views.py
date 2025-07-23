@@ -1,3 +1,6 @@
+from .utils import ajustar_cronograma_em_lote
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
@@ -209,3 +212,10 @@ class XMLToCronograma(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"message": "Cronograma importado com sucesso"}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def recalcular_cronograma(request, cronograma_id):
+    cronograma = get_object_or_404(Cronograma, id=cronograma_id)
+    ajustar_cronograma_em_lote(cronograma)
+    return Response({"status": "cronograma atualizado"})

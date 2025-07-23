@@ -6,5 +6,4 @@ class EngenhariaConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'engenharia'
 
-    def ready(self):
-        import engenharia.signals
+
