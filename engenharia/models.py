@@ -24,6 +24,12 @@ class Colaborador(models.Model):
     def __str__(self):
         return f'{self.nome} - {self.cargo}'
 
+class MesPonto(models.Model):
+    mes = models.IntegerField(choices=[(i, i)
+                            for i in range(1, 13)], default=1)
+    ano = models.IntegerField()
+    obra = models.ForeignKey(Obras, blank=True, null=-True,
+                            related_name='ponto_mes', on_delete=models.CASCADE)
 
 class Ponto(models.Model):
     colaborador = models.ForeignKey(
