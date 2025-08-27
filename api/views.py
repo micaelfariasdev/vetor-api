@@ -114,6 +114,8 @@ class CronogramasApiViewSet(ModelViewSet):
 class ColaboradorApiViewSet(ModelViewSet):
     queryset = Colaborador.objects.all()
     serializer_class = ColaboradorSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = '__all__'
 
 
 class PontoApiViewSet(ModelViewSet):
