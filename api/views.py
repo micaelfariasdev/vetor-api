@@ -121,6 +121,11 @@ class PontoApiViewSet(ModelViewSet):
     serializer_class = PontoSerializer
 
 
+class MesPontoApiViewSet(ModelViewSet):
+    queryset = MesPonto.objects.all()
+    serializer_class = MesPontoSerializer
+
+
 class ServicosCronogramasApiViewSet(ModelViewSet):
     queryset = ServicoCronograma.objects.all()
     serializer_class = ServicoCronogramaSerializer

@@ -16,6 +16,8 @@ router.register('colaboradores', views.ColaboradorApiViewSet,
                 basename='colaboradores')
 router.register('ponto', views.PontoApiViewSet,
                 basename='ponto')
+router.register('mes-ponto', views.MesPontoApiViewSet,
+                basename='mes-ponto')
 urlpatterns = router.urls
 
 urlpatterns += [

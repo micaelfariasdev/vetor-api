@@ -39,7 +39,7 @@ class ObrasSerializer(serializers.ModelSerializer):
 
 class CronogramaSerializer(serializers.ModelSerializer):
     obra_name = serializers.CharField(source='obra.nome', read_only=True)
-    
+
     class Meta:
         model = Cronograma
         fields = '__all__'
@@ -51,6 +51,7 @@ class ServicoCronogramaSerializer(serializers.ModelSerializer):
         model = ServicoCronograma
         fields = '__all__'
 
+
 class ColaboradorSerializer(serializers.ModelSerializer):
     obra_name = serializers.CharField(source='obra.nome', read_only=True)
 
@@ -58,9 +59,16 @@ class ColaboradorSerializer(serializers.ModelSerializer):
         model = Colaborador
         fields = '__all__'
 
+
 class PontoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ponto
         fields = '__all__'
 
+
+class MesPontoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MesPonto
+        fields = '__all__'
