@@ -1,12 +1,11 @@
 from .utils import ajustar_cronograma_em_lote
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
-from .serializer import DespesasMesSerializer, DespesasItemSerializer, ObrasSerializer, ServicoCronogramaSerializer, CronogramaSerializer
-from engenharia.models import DespesasMes, DespesasItem, Obras, ServicoCronograma, Cronograma
+from .serializer import *
+from engenharia.models import *
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -110,6 +109,16 @@ class ObrasApiViewSet(ModelViewSet):
 class CronogramasApiViewSet(ModelViewSet):
     queryset = Cronograma.objects.all()
     serializer_class = CronogramaSerializer
+
+
+class ColaboradorApiViewSet(ModelViewSet):
+    queryset = Colaborador.objects.all()
+    serializer_class = ColaboradorSerializer
+
+
+class PontoApiViewSet(ModelViewSet):
+    queryset = Ponto.objects.all()
+    serializer_class = PontoSerializer
 
 
 class ServicosCronogramasApiViewSet(ModelViewSet):

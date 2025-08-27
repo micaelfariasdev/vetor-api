@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from engenharia.models import DespesasMes, DespesasItem, Obras, Cronograma, ServicoCronograma
+from engenharia.models import *
 from django.contrib.auth.models import User
 
 
@@ -50,3 +50,17 @@ class ServicoCronogramaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServicoCronograma
         fields = '__all__'
+
+class ColaboradorSerializer(serializers.ModelSerializer):
+    obra_name = serializers.CharField(source='obra.nome', read_only=True)
+
+    class Meta:
+        model = Colaborador
+        fields = '__all__'
+
+class PontoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Ponto
+        fields = '__all__'
+

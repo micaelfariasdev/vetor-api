@@ -12,6 +12,10 @@ router.register('cronograma', views.CronogramasApiViewSet,
                 basename='cronograma')
 router.register('servicos-cronograma', views.ServicosCronogramasApiViewSet,
                 basename='servicos-cronograma')
+router.register('colaboradores', views.ColaboradorApiViewSet,
+                basename='colaboradores')
+router.register('ponto', views.PontoApiViewSet,
+                basename='ponto')
 urlpatterns = router.urls
 
 urlpatterns += [

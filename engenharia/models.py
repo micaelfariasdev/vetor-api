@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Max
 from datetime import timedelta
+from django.core.exceptions import ValidationError
 
 
 class Obras(models.Model):
@@ -10,6 +11,66 @@ class Obras(models.Model):
 
     def __str__(self):
         return f'{self.nome}'
+
+
+class Colaborador(models.Model):
+    nome = models.CharField(max_length=150)
+    obra = models.ForeignKey(Obras, blank=True, null=-True,
+                             related_name='colaboradores', on_delete=models.CASCADE)
+    cargo = models.CharField(max_length=100)
+    situacao = models.CharField(choices=[(
+        'ASSINADO', 'Assinado'), ('FREE', 'Freelancer')], max_length=20, default='ASSINADO')
+
+    def __str__(self):
+        return f'{self.nome} - {self.cargo}'
+
+
+class Ponto(models.Model):
+    colaborador = models.ForeignKey(
+        Colaborador, on_delete=models.CASCADE, related_name='pontos')
+    data = models.DateField()
+    entrada_manha = models.TimeField()
+    entrada_tarde = models.TimeField()
+    saida_manha = models.TimeField(null=True, blank=True)
+    saida_tarde = models.TimeField(null=True, blank=True)
+    horas_trabalhadas = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['colaborador', 'data'], name='unique_ponto_colaborador_dia')
+        ]
+
+    def clean(self):
+        if Ponto.objects.filter(colaborador=self.colaborador, data=self.data).exclude(pk=self.pk).exists():
+            raise ValidationError("Este colaborador já possui ponto registrado neste dia.")
+
+
+    def save(self, *args, **kwargs):
+
+
+        total_horas = 0
+        if self.entrada_manha and self.saida_manha:
+            delta_manha = timedelta(
+                hours=self.saida_manha.hour, minutes=self.saida_manha.minute
+            ) - timedelta(
+                hours=self.entrada_manha.hour, minutes=self.entrada_manha.minute
+            )
+            total_horas += delta_manha.total_seconds() / 3600
+
+        if self.entrada_tarde and self.saida_tarde:
+            delta_tarde = timedelta(
+                hours=self.saida_tarde.hour, minutes=self.saida_tarde.minute
+            ) - timedelta(
+                hours=self.entrada_tarde.hour, minutes=self.entrada_tarde.minute
+            )
+            total_horas += delta_tarde.total_seconds() / 3600
+
+        if total_horas > 0:
+            self.horas_trabalhadas = round(total_horas, 2)
+
+        super().save(*args, **kwargs)
 
 
 class DespesasMes(models.Model):
@@ -106,7 +167,6 @@ class ServicoCronograma(models.Model):
     #         for sucessor in self.sucessores.all():
     #             sucessor.ajustar_datas_por_dependencia(propagacao=True, atualizados=atualizados)
 
-
     def ajustar_final(self):
         self.fim = self.inicio + timedelta(days=self.dias)
 
@@ -114,11 +174,7 @@ class ServicoCronograma(models.Model):
         if not self.codigo:
             self.codigo = self.gerar_codigo()
 
-        # Cálculo de fim antes de salvar
         if self.inicio and self.dias is not None:
             self.fim = self.inicio + timedelta(days=self.dias)
 
         super().save(*args, **kwargs)
-
-        # Ajusta dependências depois de salvar
-        # self.ajustar_datas_por_dependencia()
