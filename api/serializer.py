@@ -68,6 +68,7 @@ class PontoSerializer(serializers.ModelSerializer):
 
 
 class MesPontoSerializer(serializers.ModelSerializer):
+    obra_name = serializers.CharField(source='obra.nome', read_only=True)
 
     class Meta:
         model = MesPonto
