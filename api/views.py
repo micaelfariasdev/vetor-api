@@ -121,6 +121,8 @@ class ColaboradorApiViewSet(ModelViewSet):
 class PontoApiViewSet(ModelViewSet):
     queryset = Ponto.objects.all()
     serializer_class = PontoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = 'colaborador'
 
     @action(detail=False, methods=["post"], url_path="salvar-registros")
     def salvar_registros(self, request):
