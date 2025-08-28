@@ -10,6 +10,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from datetime import datetime, date, time
+from itertools import groupby
+from operator import itemgetter
 
 
 class DespesasMesApiViewSet(ModelViewSet):
@@ -158,7 +160,8 @@ class PontoApiViewSet(ModelViewSet):
                 }
 
                 if ponto_existe:
-                    serializer = self.get_serializer(ponto_existe, data=dados, partial=True)
+                    serializer = self.get_serializer(
+                        ponto_existe, data=dados, partial=True)
                 else:
                     serializer = self.get_serializer(data=dados)
 
@@ -290,3 +293,48 @@ def recalcular_cronograma(request, cronograma_id):
     cronograma = get_object_or_404(Cronograma, id=cronograma_id)
     ajustar_cronograma_em_lote(cronograma)
     return Response({"status": "cronograma atualizado"})
+
+
+@api_view(['GET'])
+def pdf_pontos_relatorio(request, mes_id):
+    Mes = MesPonto.objects.get(id=mes_id)
+    pontos = Ponto.objects.filter(
+        data__year=Mes.ano,
+        data__month=Mes.mes,
+    ).select_related("colaborador").order_by("colaborador__nome", "data")
+
+    data = list(
+        pontos.values(
+            "id",
+            "colaborador__id",
+            "colaborador__nome",
+            "colaborador__cargo",
+            "colaborador__obra__nome",
+            "data",
+            "entrada_manha",
+            "saida_manha",
+            "entrada_tarde",
+            "saida_tarde",
+            "horas_trabalhadas",
+        )
+    )
+    resultado = []
+    for _, registros in groupby(data, key=itemgetter("colaborador__id")):
+        registros_list = list(registros)
+        resultado.append({
+            "colaborador": registros_list[0]['colaborador__nome'],
+            "cargo": registros_list[0]['colaborador__cargo'],
+            "obra": registros_list[0]['colaborador__obra__nome'],
+            "pontos": [
+                {
+                    "data": r["data"],
+                    "entrada_manha": r["entrada_manha"],
+                    "saida_manha": r["saida_manha"],
+                    "entrada_tarde": r["entrada_tarde"],
+                    "saida_tarde": r["saida_tarde"],
+                    "horas_trabalhadas": r["horas_trabalhadas"],
+                } for r in registros_list
+            ]
+        })
+
+    return Response(resultado)

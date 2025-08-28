@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Max
-from datetime import timedelta
+from datetime import timedelta, time
 from django.core.exceptions import ValidationError
 
 
@@ -24,12 +24,14 @@ class Colaborador(models.Model):
     def __str__(self):
         return f'{self.nome} - {self.cargo}'
 
+
 class MesPonto(models.Model):
     mes = models.IntegerField(choices=[(i, i)
-                            for i in range(1, 13)], default=1)
+                                       for i in range(1, 13)], default=1)
     ano = models.IntegerField()
     obra = models.ForeignKey(Obras, blank=True, null=-True,
-                            related_name='ponto_mes', on_delete=models.CASCADE)
+                             related_name='ponto_mes', on_delete=models.CASCADE)
+
 
 class Ponto(models.Model):
     colaborador = models.ForeignKey(
@@ -39,8 +41,7 @@ class Ponto(models.Model):
     entrada_tarde = models.TimeField()
     saida_manha = models.TimeField(null=True, blank=True)
     saida_tarde = models.TimeField(null=True, blank=True)
-    horas_trabalhadas = models.DecimalField(
-        max_digits=5, decimal_places=2, null=True, blank=True)
+    horas_trabalhadas = models.CharField(max_length=150, null=True, blank=True)
 
     class Meta:
         constraints = [
@@ -50,20 +51,19 @@ class Ponto(models.Model):
 
     def clean(self):
         if Ponto.objects.filter(colaborador=self.colaborador, data=self.data).exclude(pk=self.pk).exists():
-            raise ValidationError("Este colaborador já possui ponto registrado neste dia.")
-
+            raise ValidationError(
+                "Este colaborador já possui ponto registrado neste dia.")
 
     def save(self, *args, **kwargs):
+        total_horas = timedelta()  # acumula como timedelta
 
-
-        total_horas = 0
         if self.entrada_manha and self.saida_manha:
             delta_manha = timedelta(
                 hours=self.saida_manha.hour, minutes=self.saida_manha.minute
             ) - timedelta(
                 hours=self.entrada_manha.hour, minutes=self.entrada_manha.minute
             )
-            total_horas += delta_manha.total_seconds() / 3600
+            total_horas += delta_manha
 
         if self.entrada_tarde and self.saida_tarde:
             delta_tarde = timedelta(
@@ -71,10 +71,15 @@ class Ponto(models.Model):
             ) - timedelta(
                 hours=self.entrada_tarde.hour, minutes=self.entrada_tarde.minute
             )
-            total_horas += delta_tarde.total_seconds() / 3600
+            total_horas += delta_tarde
 
-        if total_horas > 0:
-            self.horas_trabalhadas = round(total_horas, 2)
+        # Converte timedelta em horas e minutos
+        total_segundos = int(total_horas.total_seconds())
+        h = total_segundos // 3600
+        m = (total_segundos % 3600) // 60
+
+        # Guarda como datetime.time
+        self.horas_trabalhadas = f"{h:02d}:{m:02d}"
 
         super().save(*args, **kwargs)
 

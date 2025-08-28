@@ -26,4 +26,6 @@ urlpatterns += [
     path('xmlcronograma/', views.XMLToCronograma.as_view(), name='xml-cronograma'),
     path('cronograma/recalcular/<int:cronograma_id>/',
          views.recalcular_cronograma),
+    path('ponto/pdf/<int:mes_id>/',
+         views.pdf_pontos_relatorio),
 ]

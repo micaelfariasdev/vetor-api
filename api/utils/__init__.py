@@ -32,3 +32,7 @@ def ajustar_cronograma_em_lote(cronograma):
     if cronograma.final != maior_fim:
         cronograma.final = maior_fim
         cronograma.save(update_fields=['final'])
+
+
+def gerar_pdf_ponto(registros):
+    return
