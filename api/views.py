@@ -1,5 +1,5 @@
 from .utils import ajustar_cronograma_em_lote
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
@@ -9,7 +9,7 @@ from engenharia.models import *
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from datetime import datetime
+from datetime import datetime, date, time
 
 
 class DespesasMesApiViewSet(ModelViewSet):
@@ -121,6 +121,59 @@ class ColaboradorApiViewSet(ModelViewSet):
 class PontoApiViewSet(ModelViewSet):
     queryset = Ponto.objects.all()
     serializer_class = PontoSerializer
+
+    @action(detail=False, methods=["post"], url_path="salvar-registros")
+    def salvar_registros(self, request):
+        data = request.data
+        pontos = data['registros']
+        colaborador_id = data['colaborador_id']
+        ano = int(data['ano'])
+        mes = int(data['mes'])
+
+        resultados = []
+
+        for idx, ponto in enumerate(pontos):
+            try:
+                dia = date(ano, mes, int(ponto['data']))
+                horarios = ponto["valores"]
+                entrada_manha = time.fromisoformat(horarios[0])
+                saida_manha = time.fromisoformat(horarios[1])
+                entrada_tarde = time.fromisoformat(horarios[2])
+                saida_tarde = time.fromisoformat(horarios[3])
+
+                ponto_existe = Ponto.objects.filter(
+                    colaborador_id=colaborador_id,
+                    data=dia
+                ).first()
+
+                dados = {
+                    "colaborador": colaborador_id,
+                    "data": dia,
+                    "entrada_manha": entrada_manha,
+                    "saida_manha": saida_manha,
+                    "entrada_tarde": entrada_tarde,
+                    "saida_tarde": saida_tarde,
+                }
+
+                if ponto_existe:
+                    serializer = self.get_serializer(ponto_existe, data=dados, partial=True)
+                else:
+                    serializer = self.get_serializer(data=dados)
+
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                resultados.append(serializer.data)
+
+            except Exception as e:
+                print(f"Erro no registro {idx}: {e}")
+
+                return Response({
+                    "erro_no_registro": idx,
+                    "registro": ponto,
+                    "detalhes": str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(resultados, status=status.HTTP_200_OK)
 
 
 class MesPontoApiViewSet(ModelViewSet):
