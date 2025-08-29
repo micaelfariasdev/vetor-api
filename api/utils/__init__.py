@@ -253,7 +253,7 @@ def gerar_pdf_ponto(registros):
             <span>Feriado = <span class="block-legenda feriado"></span></span>
         </div>
 
-        <table>
+        <table class="tabela-pontos">
             <thead>
                 <tr>
                     <th>DATA</th>
