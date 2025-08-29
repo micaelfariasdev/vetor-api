@@ -66,18 +66,18 @@ def gerar_pdf_ponto(registros):
             width: 120%;
         }
 
-        h2 {
+        .tabela-pontos h2 {
             text-align: center;
         }
 
-        th,
-        td {
+        .tabela-pontos th,
+        .tabela-pontos td {
             border: 1px solid #000;
             padding: 5px;
             text-align: center;
         }
 
-        th {
+        .tabela-pontos th {
             background-color: #d3d3d3;
         }
 
@@ -134,34 +134,26 @@ def gerar_pdf_ponto(registros):
         }
 
         .cabeçalho {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            padding: 10px;
+            border-collapse: collapse;
+            width: 120%;
+            text-align: left;
         }
 
-        .cabeçalho span strong {
-            padding-right: 5px;
+        .cabeçalho th,
+        .cabeçalho td {
+            border: 1px solid #000;
+            padding: 8px;
         }
 
-        .tabela {
-            width: 250px;
-            display: grid;
-            grid-template-columns: 5fr 2fr;
+        
+        .cabeçalho .col1 {
+            width: 60%;
         }
-
-        .tabela div,
-        .cabeçalho div {
-            margin: -1px;
-            padding: 5px;
-            border: 2px solid black;
-            font-weight: bold;
+        .cabeçalho .col2 {
+            width: 30%;
         }
-
-        .topo {
-            width: 105%;
-            display: flex;
-            align-items: center;
+        .cabeçalho .col3 {
+            width: 10%;
         }
         .page-break {
             page-break-after: always;
@@ -233,21 +225,23 @@ def gerar_pdf_ponto(registros):
 
         html_content += f"""<body>
         <h2>FREQUÊNCIA DIÁRIA</h2>
-        <div class="topo">
-            <div class='cabeçalho'>
-                <span><strong>OBRA:</strong>{col['obra']}</span>
-                <span><strong>FUNCIONARIO:</strong>{col['colaborador']}</span>
-                <span><strong>CARGO:</strong>{col['cargo']}</span>
-            </div>
-            <div class="tabela">
-                <div>HORAS FALTANTES</div>
-                <div>{formatar_horas(hr_falt)}</div>
-                <div>HORAS EXTRAS</div>
-                <div>{formatar_horas(hr_ext)}</div>
-                <div>HORAS FERIADOS/DOMINGOS</div>
-                <div>{formatar_horas(hr_fer)}</div>
-            </div>
-        </div>
+        <table class="cabeçalho" >
+            <tr>
+                <td class="col1"><strong>OBRA:</strong> {col['obra']}</td>
+                <td class="col2"><strong>HORAS FALTANTES</strong></td>
+                <td class="col3">{formatar_horas(hr_falt)}</td>
+            </tr>
+            <tr>
+                <td class="col1"><strong>FUNCIONÁRIO:</strong> {col['colaborador']}</td>
+                <td><strong>HORAS EXTRAS</strong></td>
+                <td>{formatar_horas(hr_ext)}</td>
+            </tr>
+            <tr>
+                <td class="col1"><strong>CARGO:</strong> {col['cargo']}</td>
+                <td><strong>HORAS FERIADOS/DOMINGOS</strong></td>
+                <td>{formatar_horas(hr_fer)}</td>
+            </tr>
+        </table>  
         <div class="observacoes">
             <p>A jornada de trabalho de segunda a quinta é de 9 horas diárias, das 07:00 às 17:00, com 1 hora de intervalo
                 para almoço das 12:00 às 13:00. Às sextas-feiras, a jornada é de 8 horas, das 07:00 às 16:00, com o mesmo
