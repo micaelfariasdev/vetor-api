@@ -1,4 +1,4 @@
-from .utils import ajustar_cronograma_em_lote
+from .utils import ajustar_cronograma_em_lote, gerar_pdf_ponto
 from rest_framework.decorators import api_view, action
 from django.shortcuts import get_object_or_404
 from django.db import transaction
@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from datetime import datetime, date, time
 from itertools import groupby
 from operator import itemgetter
+from django.http import HttpResponse
 
 
 class DespesasMesApiViewSet(ModelViewSet):
@@ -311,6 +312,7 @@ def pdf_pontos_relatorio(request, mes_id):
             "colaborador__cargo",
             "colaborador__obra__nome",
             "data",
+            "feriado",
             "entrada_manha",
             "saida_manha",
             "entrada_tarde",
@@ -328,6 +330,7 @@ def pdf_pontos_relatorio(request, mes_id):
             "pontos": [
                 {
                     "data": r["data"],
+                    "feriado": str(r["feriado"]),
                     "entrada_manha": r["entrada_manha"],
                     "saida_manha": r["saida_manha"],
                     "entrada_tarde": r["entrada_tarde"],
@@ -336,5 +339,5 @@ def pdf_pontos_relatorio(request, mes_id):
                 } for r in registros_list
             ]
         })
-
-    return Response(resultado)
+    pdf = gerar_pdf_ponto(resultado)
+    return HttpResponse(pdf, content_type="application/pdf")

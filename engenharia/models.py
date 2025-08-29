@@ -42,6 +42,7 @@ class Ponto(models.Model):
     saida_manha = models.TimeField(null=True, blank=True)
     saida_tarde = models.TimeField(null=True, blank=True)
     horas_trabalhadas = models.CharField(max_length=150, null=True, blank=True)
+    feriado = models.BooleanField(default=False)
 
     class Meta:
         constraints = [

@@ -15,6 +15,7 @@ data = [
         "pontos": [
             {
                 "data": "2025-08-05",
+                "feriado": 'False',
                 "entrada_manha": "12:03:00",
                 "saida_manha": "12:04:00",
                 "entrada_tarde": "12:24:00",
@@ -23,6 +24,7 @@ data = [
             },
             {
                 "data": "2025-08-06",
+                "feriado": 'False',
                 "entrada_manha": "12:03:00",
                 "saida_manha": "12:04:00",
                 "entrada_tarde": "12:24:00",
@@ -31,6 +33,7 @@ data = [
             },
             {
                 "data": "2025-08-07",
+                "feriado": 'False',
                 "entrada_manha": "12:03:00",
                 "saida_manha": "12:04:00",
                 "entrada_tarde": "12:24:00",
@@ -39,6 +42,25 @@ data = [
             },
             {
                 "data": "2025-08-08",
+                "feriado": 'True',
+                "entrada_manha": "12:03:00",
+                "saida_manha": "12:04:00",
+                "entrada_tarde": "12:24:00",
+                "saida_tarde": "12:45:00",
+                "horas_trabalhadas": "00:22"
+            },
+            {
+                "data": "2025-08-09",
+                "feriado": 'False',
+                "entrada_manha": "12:03:00",
+                "saida_manha": "12:04:00",
+                "entrada_tarde": "12:24:00",
+                "saida_tarde": "12:45:00",
+                "horas_trabalhadas": "00:22"
+            },
+            {
+                "data": "2025-08-10",
+                "feriado": 'False',
                 "entrada_manha": "12:03:00",
                 "saida_manha": "12:04:00",
                 "entrada_tarde": "12:24:00",
@@ -47,6 +69,7 @@ data = [
             },
             {
                 "data": "2025-08-27",
+                "feriado": 'False',
                 "entrada_manha": "07:00:00",
                 "saida_manha": "13:00:00",
                 "entrada_tarde": "12:00:00",
@@ -93,13 +116,29 @@ html_content = """
             background-color: #d3d3d3;
         }
 
+        .legenda {
+            margin-bottom: 10px;
+        }
+
+        .block-legenda{
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border: 1px solid black;
+            margin-left: 2px;
+            vertical-align: middle;
+        }
+
         .sabado {
             background-color: #c8e6c9;
         }
 
         .domingo {
-            background-color: #f0f0f0;
-            color: gray;
+            background-color: #E6868A;
+        }
+
+        .feriado {
+            background-color: #FABD7E;
         }
 
         .negativo {
@@ -178,6 +217,14 @@ def formatar_data_com_dia(data_str):
     data_formatada = data.strftime("%d/%m/%Y")
     return f'{data_formatada} • {dia_sigla}'
 
+def formatar_horas(time):
+    total_segundos = time.total_seconds()
+    horas = int(total_segundos // 3600)
+    minutos = int((total_segundos % 3600) // 60)
+    segundos = int(total_segundos % 60)
+
+    resultado = f"{horas:02d}:{minutos:02d}:{segundos:02d}"
+    return resultado
 
 for col in data:
     pontos = ""
@@ -189,31 +236,38 @@ for col in data:
         horas_trab = timedelta(hours=h, minutes=m)
         data_print = formatar_data_com_dia(r['data'])
         dia_semana = formatar_data_com_dia(r['data'])[-3:]
+        horas_extras = timedelta()
 
-        if dia_semana not in ["SEX", "SÁB", "DOM"]:
+        if dia_semana == "DOM" or r['feriado'] == 'True':
+            hr_fer += horas_trab
+            horas_extras= horas_trab
+        elif dia_semana not in ["SEX", "SÁB", "DOM"]:
             if horas_trab < timedelta(hours=9):
                 hr_falt += timedelta(hours=9) - horas_trab
+                horas_extras = f'-{str(timedelta(hours=9) - horas_trab)}' 
             elif horas_trab > timedelta(hours=9):
                 hr_ext += horas_trab - timedelta(hours=9)
+                horas_extras= horas_trab - timedelta(hours=9)
         elif dia_semana == "SEX":
             if horas_trab < timedelta(hours=8):
                 hr_falt += timedelta(hours=8) - horas_trab
+                horas_extras = f'-{str(timedelta(hours=8) - horas_trab)}'
             elif horas_trab > timedelta(hours=8):
                 hr_ext += horas_trab - timedelta(hours=8)
+                horas_extras = horas_trab - timedelta(hours=8)
         elif dia_semana == "SÁB":
             hr_ext += horas_trab
-        elif dia_semana == "DOM":
-            hr_fer += horas_trab
+            horas_extras= horas_trab
 
         pontos += f"""
-                <tr class="">
+                <tr class={'sabado' if dia_semana == 'SÁB' else 'domingo' if dia_semana == 'DOM' else 'feriado' if r['feriado'] == 'True' else ''}>
                     <td>{data_print}</td>
                     <td>{r['entrada_manha']}</td>
                     <td>{r['saida_manha']}</td>
                     <td>{r['entrada_tarde']}</td>
                     <td>{r['saida_tarde']}</td>
                     <td>{horas_trab}</td>
-                    <td>{r['horas_trabalhadas']}</td>
+                    <td class={'positivo' if not str(horas_extras).startswith('-') else 'negativo'}>{horas_extras}</td>
                 </tr>
 """
 
@@ -227,17 +281,22 @@ for col in data:
         </div>
         <div class="tabela">
             <div>HORAS FALTANTES</div>
-            <div>{hr_falt}</div>
+            <div>{formatar_horas(hr_falt)}</div>
             <div>HORAS EXTRAS</div>
-            <div>{hr_ext}</div>
+            <div>{formatar_horas(hr_ext)}</div>
             <div>HORAS FERIADOS/DOMINGOS</div>
-            <div>{hr_fer}</div>
+            <div>{formatar_horas(hr_fer)}</div>
         </div>
     </div>
     <div class="observacoes">
         <p>A jornada de trabalho de segunda a quinta é de 9 horas diárias, das 07:00 às 17:00, com 1 hora de intervalo
             para almoço das 12:00 às 13:00. Às sextas-feiras, a jornada é de 8 horas, das 07:00 às 16:00, com o mesmo
             intervalo de almoço.</p>
+    </div>
+    <div class="legenda">
+        <span>Sábado = <span class="block-legenda sabado"></span></span>
+        <span>Domingo = <span class="block-legenda domingo"></span></span>
+        <span>Feriado = <span class="block-legenda feriado"></span></span>
     </div>
 
     <table>
@@ -249,6 +308,7 @@ for col in data:
                 <th>ENTRADA</th>
                 <th>SAÍDA</th>
                 <th>QTDE. HORAS</th>
+                <th>SALDO</th>
             </tr>
         </thead>
         <tbody>
