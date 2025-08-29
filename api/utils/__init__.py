@@ -45,6 +45,10 @@ def gerar_pdf_ponto(registros):
     locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 
     data = registros
+    meses = [
+        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ]
 
     html_content = """
     <html>
@@ -224,7 +228,7 @@ def gerar_pdf_ponto(registros):
     """
 
         html_content += f"""<body>
-        <h2>FREQUÊNCIA DIÁRIA</h2>
+        <h2>FREQUÊNCIA DIÁRIA DO MÊS DE {meses[col['mes']-1].upper()}</h2>
         <table class="cabeçalho" >
             <tr>
                 <td class="col1"><strong>OBRA:</strong> {col['obra']}</td>

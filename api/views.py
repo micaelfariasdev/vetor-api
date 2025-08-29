@@ -300,9 +300,11 @@ def recalcular_cronograma(request, cronograma_id):
 @api_view(['GET'])
 def pdf_pontos_relatorio(request, mes_id):
     Mes = MesPonto.objects.get(id=mes_id)
+    ini = date(int(Mes.ano), int(Mes.mes) - 1, 26)
+    fim = date(int(Mes.ano), int(Mes.mes), 25)
+
     pontos = Ponto.objects.filter(
-        data__year=Mes.ano,
-        data__month=Mes.mes,
+        data__range=(ini, fim)
     ).select_related("colaborador").order_by("colaborador__nome", "data")
 
     data = list(
@@ -328,6 +330,7 @@ def pdf_pontos_relatorio(request, mes_id):
             "colaborador": registros_list[0]['colaborador__nome'],
             "cargo": registros_list[0]['colaborador__cargo'],
             "obra": registros_list[0]['colaborador__obra__nome'],
+            "mes": int(Mes.mes),
             "pontos": [
                 {
                     "data": r["data"],
