@@ -133,13 +133,12 @@ class PontoApiViewSet(ModelViewSet):
         pontos = data['registros']
         colaborador_id = data['colaborador_id']
         ano = int(data['ano'])
-        mes = int(data['mes'])
 
         resultados = []
 
         for idx, ponto in enumerate(pontos):
             try:
-                dia = date(ano, mes, int(ponto['data']))
+                dia = date(ano, int(ponto['mes']), int(ponto['data']))
                 horarios = ponto["valores"]
                 feriado = True if horarios[4] else False
                 entrada_manha = time.fromisoformat(horarios[0])
