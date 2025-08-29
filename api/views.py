@@ -154,6 +154,7 @@ class PontoApiViewSet(ModelViewSet):
                 dados = {
                     "colaborador": colaborador_id,
                     "data": dia,
+                    "feriado": feriado,
                     "entrada_manha": entrada_manha,
                     "saida_manha": saida_manha,
                     "entrada_tarde": entrada_tarde,
