@@ -2,8 +2,10 @@ from django.db.models import Max
 from datetime import timedelta
 from engenharia.models import Cronograma, ServicoCronograma
 
+
 def ajustar_cronograma_em_lote(cronograma):
-    servicos = ServicoCronograma.objects.filter(cronograma=cronograma).select_related('pai').prefetch_related('predecessores', 'sucessores')
+    servicos = ServicoCronograma.objects.filter(cronograma=cronograma).select_related(
+        'pai').prefetch_related('predecessores', 'sucessores')
     servicos = list(servicos.order_by('nivel', 'id'))
 
     servicos_map = {s.pk: s for s in servicos}
@@ -40,9 +42,7 @@ def gerar_pdf_ponto(registros):
     import locale
     import calendar
 
-
     locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
-
 
     data = registros
 
@@ -119,12 +119,14 @@ def gerar_pdf_ponto(registros):
             }
 
             .cabeçalho {
-                width: 100%;
-                font-size: 16px;
+                width: 60%;
+                font-size: 12px;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 5px;
                 padding: 10px;
+                word-wrap: break-word;
+                overflow-wrap: break-word;
             }
 
             .cabeçalho span {
@@ -161,10 +163,10 @@ def gerar_pdf_ponto(registros):
             }
 
             .topo {
-                width: 105%;
+                width: 100%;
                 display: flex;
                 justify-content: space-between;
-                align-items: center;
+                align-items: flex-start;
             }
             .page-break {
                 page-break-after: always;
@@ -173,11 +175,10 @@ def gerar_pdf_ponto(registros):
     </head>
     """
 
-
     def formatar_data_com_dia(data_str):
         data = data_str
         dias_semana = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"]
-        dia_sigla = dias_semana[data.weekday()] 
+        dia_sigla = dias_semana[data.weekday()]
         data_formatada = data.strftime("%d/%m/%Y")
         return f'{data_formatada} • {dia_sigla}'
 
@@ -204,14 +205,14 @@ def gerar_pdf_ponto(registros):
 
             if dia_semana == "DOM" or r['feriado'] == 'True':
                 hr_fer += horas_trab
-                horas_extras= horas_trab
+                horas_extras = horas_trab
             elif dia_semana not in ["SEX", "SÁB", "DOM"]:
                 if horas_trab < timedelta(hours=9):
                     hr_falt += timedelta(hours=9) - horas_trab
-                    horas_extras = f'-{str(timedelta(hours=9) - horas_trab)}' 
+                    horas_extras = f'-{str(timedelta(hours=9) - horas_trab)}'
                 elif horas_trab > timedelta(hours=9):
                     hr_ext += horas_trab - timedelta(hours=9)
-                    horas_extras= horas_trab - timedelta(hours=9)
+                    horas_extras = horas_trab - timedelta(hours=9)
             elif dia_semana == "SEX":
                 if horas_trab < timedelta(hours=8):
                     hr_falt += timedelta(hours=8) - horas_trab
@@ -221,7 +222,7 @@ def gerar_pdf_ponto(registros):
                     horas_extras = horas_trab - timedelta(hours=8)
             elif dia_semana == "SÁB":
                 hr_ext += horas_trab
-                horas_extras= horas_trab
+                horas_extras = horas_trab
 
             pontos += f"""
                     <tr class={'sabado' if dia_semana == 'SÁB' else 'domingo' if dia_semana == 'DOM' else 'feriado' if r['feriado'] == 'True' else ''}>
