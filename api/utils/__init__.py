@@ -51,127 +51,122 @@ def gerar_pdf_ponto(registros):
 
     <head>
         <style>
-            body {
-                font-family: Arial, sans-serif;
-                font-size: 10px;
-                width: 80%;
-                display: flex
-                justify-items: center;
-                align-items: center;
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            width: 80%;
+            display: flex
+            justify-items: center;
+            align-items: center;
 
-            }
+        }
 
-            table {
-                border-collapse: collapse;
-                width: 120%;
-            }
+        table {
+            border-collapse: collapse;
+            width: 120%;
+        }
 
-            h2 {
-                text-align: center;
-            }
+        h2 {
+            text-align: center;
+        }
 
-            th,
-            td {
-                border: 1px solid #000;
-                padding: 5px;
-                text-align: center;
-            }
+        th,
+        td {
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+        }
 
-            th {
-                background-color: #d3d3d3;
-            }
+        th {
+            background-color: #d3d3d3;
+        }
 
-            .legenda {
-                margin-bottom: 10px;
-            }
+        .legenda {
+            margin-bottom: 10px;
+        }
 
-            .block-legenda{
-                display: inline-block;
-                width: 10px;
-                height: 10px;
-                border: 1px solid black;
-                margin-left: 2px;
-                vertical-align: middle;
-            }
+        .block-legenda{
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border: 1px solid black;
+            margin-left: 2px;
+            vertical-align: middle;
+        }
 
-            .sabado {
-                background-color: #c8e6c9;
-            }
+        .sabado {
+            background-color: #c8e6c9;
+        }
 
-            .domingo {
-                background-color: #E6868A;
-            }
+        .domingo {
+            background-color: #E6868A;
+        }
 
-            .feriado {
-                background-color: #FABD7E;
-            }
+        .feriado {
+            background-color: #FABD7E;
+        }
 
-            .negativo {
-                color: red;
-            }
+        .negativo {
+            color: red;
+        }
 
-            .positivo {
-                color: green;
-            }
+        .positivo {
+            color: green;
+        }
 
-            .header-table td {
-                font-weight: bold;
-            }
+        .header-table td {
+            font-weight: bold;
+        }
 
-            .cabeçalho {
-                width: 60%;
-                font-size: 12px;
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-                padding: 10px;
-                word-wrap: break-word;
-                overflow-wrap: break-word;
-            }
+        
 
-            .cabeçalho span {
-                border-bottom: 2px solid black;
-            }
+        .observacoes {
+            opacity: 0.7;
+            transform: scale(.9);
+            font-style: italic;
+            border: 1px solid black;
+            border-radius: 5px;
+            padding: 5px;
+            margin-bottom: 5px;
+            font-size: 12px;
+            text-align: justify;
+            width: 120%;
+        }
 
-            .cabeçalho span strong {
-                padding-right: 5px;
-            }
+        .cabeçalho {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
 
-            .observacoes {
-                opacity: 0.7;
-                transform: scale(.9);
-                font-style: italic;
-                border: 1px solid black;
-                border-radius: 5px;
-                padding: 5px;
-                margin-bottom: 5px;
-                font-size: 12px;
-                text-align: justify;
-                width: 120%;
-            }
+        .cabeçalho span strong {
+            padding-right: 5px;
+        }
 
-            .tabela {
-                display: grid;
-                grid-template-columns: 5fr 2fr;
-            }
+        .tabela {
+            width: 250px;
+            display: grid;
+            grid-template-columns: 5fr 2fr;
+        }
 
-            .tabela div {
-                margin: -1px;
-                padding: 5px;
-                border: 2px solid black;
-                font-weight: bold;
-            }
+        .tabela div,
+        .cabeçalho div {
+            margin: -1px;
+            padding: 5px;
+            border: 2px solid black;
+            font-weight: bold;
+        }
 
-            .topo {
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-            }
-            .page-break {
-                page-break-after: always;
-            }
-        </style>
+        .topo {
+            width: 105%;
+            display: flex;
+            align-items: center;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+    </style>
     </head>
     """
 

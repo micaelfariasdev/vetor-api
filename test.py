@@ -153,22 +153,7 @@ html_content = """
             font-weight: bold;
         }
 
-        .cabeçalho {
-            width: 100%;
-            font-size: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 10px;
-        }
-
-        .cabeçalho span {
-            border-bottom: 2px solid black;
-        }
-
-        .cabeçalho span strong {
-            padding-right: 5px;
-        }
+        
 
         .observacoes {
             opacity: 0.7;
@@ -183,12 +168,25 @@ html_content = """
             width: 120%;
         }
 
+        .cabeçalho {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .cabeçalho span strong {
+            padding-right: 5px;
+        }
+
         .tabela {
+            width: 250px;
             display: grid;
             grid-template-columns: 5fr 2fr;
         }
 
-        .tabela div {
+        .tabela div,
+        .cabeçalho div {
             margin: -1px;
             padding: 5px;
             border: 2px solid black;
@@ -198,7 +196,6 @@ html_content = """
         .topo {
             width: 105%;
             display: flex;
-            justify-content: space-between;
             align-items: center;
         }
         .page-break {
@@ -275,9 +272,9 @@ for col in data:
     <h2>FREQUÊNCIA DIÁRIA</h2>
     <div class="topo">
         <div class='cabeçalho'>
-            <span><strong>OBRA:</strong>{col['obra']}</span>
-            <span><strong>FUNCIONARIO:</strong>{col['colaborador']}</span>
-            <span><strong>CARGO:</strong>{col['cargo']}</span>
+            <div><strong>OBRA:</strong>{col['obra']}</div>
+            <div><strong>FUNCIONARIO:</strong>{col['colaborador']}</div>
+            <div><strong>CARGO:</strong>{col['cargo']}</div>
         </div>
         <div class="tabela">
             <div>HORAS FALTANTES</div>
