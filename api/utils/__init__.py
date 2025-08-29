@@ -49,6 +49,30 @@ def gerar_pdf_ponto(registros):
         'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
     ]
+    from datetime import date, timedelta
+
+    def gerar_lista_datas(mes, ano):
+        if mes == 1:
+            mes_anterior = 12
+            ano_anterior = ano - 1
+        else:
+            mes_anterior = mes - 1
+            ano_anterior = ano
+
+        data_inicio = date(ano_anterior, mes_anterior, 26)
+        data_fim = date(ano, mes, 25)
+
+        lista_de_datas = []
+        data_atual = data_inicio
+
+        while data_atual <= data_fim:
+            lista_de_datas.append(data_atual)
+            data_atual += timedelta(days=1)
+
+        return lista_de_datas
+
+
+# Exemplo de uso
 
     html_content = """
     <html>
@@ -187,46 +211,74 @@ def gerar_pdf_ponto(registros):
         hr_falt = timedelta()
         hr_ext = timedelta()
         hr_fer = timedelta()
-        for r in col['pontos']:
-            h, m = map(int, r['horas_trabalhadas'].split(":"))
-            horas_trab = timedelta(hours=h, minutes=m)
-            data_print = formatar_data_com_dia(r['data'])
-            dia_semana = formatar_data_com_dia(r['data'])[-3:]
-            horas_extras = timedelta()
 
-            if dia_semana == "DOM" or r['feriado'] == 'True':
-                hr_fer += horas_trab
-                horas_extras = horas_trab
-            elif dia_semana not in ["SEX", "SÁB", "DOM"]:
-                if horas_trab < timedelta(hours=9):
-                    hr_falt += timedelta(hours=9) - horas_trab
-                    horas_extras = f'-{str(timedelta(hours=9) - horas_trab)}'
-                elif horas_trab > timedelta(hours=9):
-                    hr_ext += horas_trab - timedelta(hours=9)
-                    horas_extras = horas_trab - timedelta(hours=9)
-            elif dia_semana == "SEX":
-                if horas_trab < timedelta(hours=8):
-                    hr_falt += timedelta(hours=8) - horas_trab
-                    horas_extras = f'-{str(timedelta(hours=8) - horas_trab)}'
-                elif horas_trab > timedelta(hours=8):
-                    hr_ext += horas_trab - timedelta(hours=8)
-                    horas_extras = horas_trab - timedelta(hours=8)
-            elif dia_semana == "SÁB":
-                hr_ext += horas_trab
-                horas_extras = horas_trab
+        for i, d in enumerate(gerar_lista_datas(col['mes'], int(col['ano']))):
+            registro_encontrado = None
 
-            pontos += f"""
-                    <tr class={'sabado' if dia_semana == 'SÁB' else 'domingo' if dia_semana == 'DOM' else 'feriado' if r['feriado'] == 'True' else ''}>
-                        <td>{data_print}</td>
-                        <td>{r['entrada_manha']}</td>
-                        <td>{r['saida_manha']}</td>
-                        <td>{r['entrada_tarde']}</td>
-                        <td>{r['saida_tarde']}</td>
-                        <td>{horas_trab}</td>
-                        <td class={'positivo' if not str(horas_extras).startswith('-') else 'negativo'}>{horas_extras}</td>
-                    </tr>
-    """
+            try:
+                registro_encontrado = list(
+                    filter(lambda r: r['data'] == d, col['pontos']))[0]
 
+            except IndexError:
+                pass
+
+            if registro_encontrado:
+                h, m = registro_encontrado['horas_trabalhadas'].split(":")
+                horas_trab = timedelta(hours=int(h), minutes=int(m))
+                dia_semana = formatar_data_com_dia(d)[-3:]
+                horas_extras = timedelta()
+
+                if dia_semana == "DOM" or registro_encontrado['feriado'] == 'True':
+                    hr_fer += horas_trab
+                    horas_extras = horas_trab
+                elif dia_semana not in ["SEX", "SÁB", "DOM"]:
+                    jornada_diaria = timedelta(hours=9)
+                    if horas_trab < jornada_diaria:
+                        hr_falt += jornada_diaria - horas_trab
+                        horas_extras = f'-{str(jornada_diaria - horas_trab)}'
+                    elif horas_trab > jornada_diaria:
+                        hr_ext += horas_trab - jornada_diaria
+                        horas_extras = horas_trab - jornada_diaria
+                elif dia_semana == "SEX":
+                    jornada_diaria = timedelta(hours=8)
+                    if horas_trab < jornada_diaria:
+                        hr_falt += jornada_diaria - horas_trab
+                        horas_extras = f'-{str(jornada_diaria - horas_trab)}'
+                    elif horas_trab > jornada_diaria:
+                        hr_ext += horas_trab - jornada_diaria
+                        horas_extras = horas_trab - jornada_diaria
+                elif dia_semana == "SÁB":
+                    hr_ext += horas_trab
+                    horas_extras = horas_trab
+                dia_semana = formatar_data_com_dia(d)[-3:]
+                is_weekend = 'sabado' if dia_semana == 'SÁB' else 'domingo' if dia_semana == 'DOM' else ''
+
+                pontos += f"""
+                        <tr class="{is_weekend}">
+                            <td>{formatar_data_com_dia(d)}</td>
+                            <td>{registro_encontrado['entrada_manha']}</td>
+                            <td>{registro_encontrado['saida_manha']}</td>
+                            <td>{registro_encontrado['entrada_tarde']}</td>
+                            <td>{registro_encontrado['saida_tarde']}</td>
+                            <td>{registro_encontrado['horas_trabalhadas']}</td>
+                            <td class={'positivo' if not str(horas_extras).startswith('-') else 'negativo'}>{horas_extras}</td>
+                        </tr>
+                """
+            else:
+                dia_semana = formatar_data_com_dia(d)[-3:]
+                is_weekend = 'sabado' if dia_semana == 'SÁB' else 'domingo' if dia_semana == 'DOM' else ''
+
+                pontos += f"""
+                        <tr class="{is_weekend}">
+                            <td>{formatar_data_com_dia(d)}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>00:00</td>
+                            <td>-</td>
+                        </tr>
+                """
         html_content += f"""<body>
         <h2>FREQUÊNCIA DIÁRIA DO MÊS DE {meses[col['mes']-1].upper()}</h2>
         <table class="cabeçalho" >

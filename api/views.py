@@ -331,6 +331,7 @@ def pdf_pontos_relatorio(request, mes_id):
             "cargo": registros_list[0]['colaborador__cargo'],
             "obra": registros_list[0]['colaborador__obra__nome'],
             "mes": int(Mes.mes),
+            "ano": int(Mes.ano),
             "pontos": [
                 {
                     "data": r["data"],
@@ -344,4 +345,5 @@ def pdf_pontos_relatorio(request, mes_id):
             ]
         })
     pdf = gerar_pdf_ponto(resultado)
+    # return Response(data)
     return HttpResponse(pdf, content_type="application/pdf")
