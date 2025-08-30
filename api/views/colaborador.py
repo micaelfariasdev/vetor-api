@@ -13,7 +13,7 @@ class ColaboradorApiViewSet(ModelViewSet):
     filterset_fields = '__all__'
 
     @action(detail=True, methods=["get"], url_path="pontos")
-    def salvar_registros(self, request, pk=None):
+    def colaborador_pontos(self, request, pk=None):
         colaborador = self.get_object()
         pontos = colaborador.pontos.all()
 

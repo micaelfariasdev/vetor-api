@@ -63,7 +63,7 @@ class ColaboradorSerializer(serializers.ModelSerializer):
 class PontoSerializer(serializers.ModelSerializer):
     colaborador_name = serializers.CharField(
         source='colaborador.nome', read_only=True)
-    
+
     class Meta:
         model = Ponto
         fields = '__all__'

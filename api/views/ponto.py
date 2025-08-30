@@ -18,10 +18,8 @@ class PontoApiViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['colaborador']
 
-
-
     @action(detail=False, methods=["post"], url_path="salvar-registros")
-    def salvar_registros(self, request):
+    def mes_colaborador(self, request):
         data = request.data
         pontos = data['registros']
         colaborador_id = data['colaborador_id']
@@ -83,7 +81,7 @@ class MesPontoApiViewSet(ModelViewSet):
     @action(detail=True, methods=["get"], url_path="relacao")
     def salvar_registros(self, request, pk=None):
         mes_ponto = self.get_object()
-        obra = mes_ponto.obra  
+        obra = mes_ponto.obra
         colaboradores = obra.colaboradores.all()
 
         data = {
