@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    #apps custom
+    # apps custom
     'corsheaders',
     'rest_framework',
     'api',
@@ -65,8 +65,8 @@ ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [],  # Pode deixar vazio ou com o caminho da pasta raiz de templates
+        'APP_DIRS': True,  # Esta linha é crucial
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -85,10 +85,14 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE'),  # Substitua pelo banco de dados que você está usando
-        'NAME': os.getenv('DB_NAME'),  # Substitua pelo nome do seu banco de dados
-        'USER': os.getenv('DB_USER'),  # Substitua pelo nome do usuário do banco
-        'PASSWORD': os.getenv('DB_PASSWORD'),  # Substitua pela senha do usuário
+        # Substitua pelo banco de dados que você está usando
+        'ENGINE': os.getenv('DB_ENGINE'),
+        # Substitua pelo nome do seu banco de dados
+        'NAME': os.getenv('DB_NAME'),
+        # Substitua pelo nome do usuário do banco
+        'USER': os.getenv('DB_USER'),
+        # Substitua pela senha do usuário
+        'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),  # Ou o IP do servidor PostgreSQL
         'PORT': os.getenv('DB_PORT'),  # Porta padrão do PostgreSQL
     }
@@ -156,4 +160,3 @@ REST_FRAMEWORK = {
         "django_filters.rest_framework.DjangoFilterBackend"
     ],
 }
-

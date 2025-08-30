@@ -5,12 +5,79 @@ from datetime import timedelta, time
 from django.core.exceptions import ValidationError
 
 
+class Servicos(models.Model):
+    titulo = models.CharField(max_length=150, unique=True)
+    descricao = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.titulo
+
+
 class Obras(models.Model):
+    TIPOS_OBRA = [
+        ('PREDIO', 'Prédio'),
+        ('CONDOMINIO', 'Condomínio de Casas'),
+        ('LOTEAMENTO', 'Loteamento'),
+    ]
+
     nome = models.CharField(max_length=150)
     endereço = models.CharField(max_length=250, blank=True, null=True)
+    cnpj = models.CharField(max_length=18, blank=True, null=True)
+    tipo_obra = models.CharField(
+        max_length=20, choices=TIPOS_OBRA, default='PREDIO')
+    servicos = models.ManyToManyField(
+        Servicos, blank=True, related_name='obras')
 
     def __str__(self):
         return f'{self.nome}'
+
+
+class Andar(models.Model):
+    obra = models.ForeignKey(
+        Obras, on_delete=models.CASCADE, related_name='andares')
+    numero_andar = models.IntegerField()
+
+    def __str__(self):
+        return f'Andar {self.numero_andar} - {self.obra.nome}'
+
+    class Meta:
+        unique_together = ('obra', 'numero_andar')
+
+
+class Unidade(models.Model):
+    obra = models.ForeignKey(
+        Obras, on_delete=models.CASCADE, related_name='unidades')
+    andar = models.ForeignKey(
+        Andar, on_delete=models.CASCADE, related_name='unidades', blank=True, null=True)
+    nome_ou_numero = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f'{self.nome_ou_numero} - {self.obra.nome}'
+
+    class Meta:
+        unique_together = ('obra', 'andar', 'nome_ou_numero')
+
+
+class ServicoUnidade(models.Model):
+    STATUS_CHOICES = [
+        ('NAO_INICIADO', 'Não Iniciado'),
+        ('EM_ANDAMENTO', 'Em Andamento'),
+        ('CONCLUIDO', 'Concluído'),
+    ]
+
+    unidade = models.ForeignKey(
+        Unidade, on_delete=models.CASCADE, related_name='servicos_unidade')
+    servico = models.ForeignKey(Servicos, on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default='NAO_INICIADO')
+    progresso = models.DecimalField(
+        max_digits=5, decimal_places=2, default=0.0)
+
+    class Meta:
+        unique_together = ('unidade', 'servico')
+
+    def __str__(self):
+        return f'{self.servico.titulo} - {self.unidade.nome_ou_numero} ({self.status})'
 
 
 class Colaborador(models.Model):
