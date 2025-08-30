@@ -75,3 +75,22 @@ class MesPontoSerializer(serializers.ModelSerializer):
     class Meta:
         model = MesPonto
         fields = '__all__'
+
+
+class ServicosSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Servicos
+        fields = '__all__'
+
+class UnidadeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Unidade
+        fields = '__all__'
+
+class ServicosUnidadeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ServicoUnidade
+        fields = '__all__'
