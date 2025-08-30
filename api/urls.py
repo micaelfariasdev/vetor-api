@@ -18,6 +18,13 @@ router.register('ponto', views.PontoApiViewSet,
                 basename='ponto')
 router.register('mes-ponto', views.MesPontoApiViewSet,
                 basename='mes-ponto')
+router.register('unidade', views.UnidadeApiViewSet,
+                basename='unidade')
+router.register('servico', views.ServicosApiViewSet,
+                basename='servico')
+router.register('servico-unidade', views.ServicosUnidadeApiViewSet,
+                basename='servico-unidade')
+
 urlpatterns = router.urls
 
 urlpatterns += [
