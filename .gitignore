@@ -140,3 +140,5 @@ venv/
 /test*.py
 /os.path.join(BASE_DIR, 'db.sqlite3')
 *.sqlite3')
+
+gunicorn-error-log
