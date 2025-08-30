@@ -34,7 +34,7 @@ class ObrasSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Obras
-        fields = ['id', 'nome', 'endereço']
+        fields = "__all__"
 
 
 class CronogramaSerializer(serializers.ModelSerializer):

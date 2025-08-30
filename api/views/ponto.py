@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from ..serializer import PontoSerializer, MesPontoSerializer
-from engenharia.models import Ponto, MesPonto
+from engenharia.models import Ponto, MesPonto, Colaborador
 from rest_framework.response import Response
 from rest_framework import status
 from datetime import date, time
@@ -17,6 +17,8 @@ class PontoApiViewSet(ModelViewSet):
     serializer_class = PontoSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['colaborador']
+
+
 
     @action(detail=False, methods=["post"], url_path="salvar-registros")
     def salvar_registros(self, request):
@@ -77,6 +79,18 @@ class PontoApiViewSet(ModelViewSet):
 class MesPontoApiViewSet(ModelViewSet):
     queryset = MesPonto.objects.all()
     serializer_class = MesPontoSerializer
+
+    @action(detail=True, methods=["get"], url_path="relacao")
+    def salvar_registros(self, request, pk=None):
+        mes_ponto = self.get_object()
+        obra = mes_ponto.obra  
+        colaboradores = obra.colaboradores.all()
+
+        data = {
+            'dados': MesPontoSerializer(mes_ponto).data,
+            'funcionarios': list(colaboradores.values())
+        }
+        return Response(data)
 
 
 @api_view(['GET'])
