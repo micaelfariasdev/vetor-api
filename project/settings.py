@@ -161,6 +161,7 @@ REST_FRAMEWORK = {
     ],
 }
 
+LBASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOG_DIR = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
@@ -197,10 +198,16 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        # Defina um logger para sua própria aplicação
+        # Logger para o app 'engenharia'
         'engenharia': {
             'handlers': ['console', 'file'],
-            'level': 'DEBUG',  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        # Logger para o novo app 'api'
+        'api': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
             'propagate': False,
         },
     },
