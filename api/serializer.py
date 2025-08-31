@@ -94,3 +94,9 @@ class ServicosUnidadeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServicoUnidade
         fields = '__all__'
+
+class AndarSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Andar
+        fields = '__all__'

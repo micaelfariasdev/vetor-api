@@ -24,6 +24,8 @@ router.register('servico', views.ServicosApiViewSet,
                 basename='servico')
 router.register('servico-unidade', views.ServicosUnidadeApiViewSet,
                 basename='servico-unidade')
+router.register('andar', views.AndarApiViewSet,
+                basename='andar')
 
 urlpatterns = router.urls
 

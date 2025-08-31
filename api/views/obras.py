@@ -1,6 +1,6 @@
 from rest_framework.viewsets import ModelViewSet
-from ..serializer import ObrasSerializer, ServicosSerializer, ServicosUnidadeSerializer, UnidadeSerializer
-from engenharia.models import Obras, Servicos, ServicoUnidade, Unidade
+from ..serializer import ObrasSerializer, ServicosSerializer, ServicosUnidadeSerializer, UnidadeSerializer, AndarSerializer
+from engenharia.models import Obras, Servicos, ServicoUnidade, Unidade, Andar
 
 
 class ObrasApiViewSet(ModelViewSet):
@@ -18,3 +18,7 @@ class UnidadeApiViewSet(ModelViewSet):
 class ServicosUnidadeApiViewSet(ModelViewSet):
     queryset = ServicoUnidade.objects.all()
     serializer_class = ServicosUnidadeSerializer
+
+class AndarApiViewSet(ModelViewSet):
+    queryset = Andar.objects.all()
+    serializer_class = AndarSerializer
