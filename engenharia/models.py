@@ -35,10 +35,10 @@ class Obras(models.Model):
 class Andar(models.Model):
     obra = models.ForeignKey(
         Obras, on_delete=models.CASCADE, related_name='andares')
-    numero_andar = models.IntegerField()
+    nome = models.CharField(max_length=50)
 
     def __str__(self):
-        return f'Andar {self.numero_andar} - {self.obra.nome}'
+        return f'Andar {self.nome} - {self.obra.nome}'
 
     class Meta:
         unique_together = ('obra', 'numero_andar')
