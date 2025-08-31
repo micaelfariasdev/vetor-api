@@ -93,52 +93,66 @@ class MesPontoApiViewSet(ModelViewSet):
 
 @api_view(['GET'])
 def pdf_pontos_relatorio(request, mes_id):
-    Mes = MesPonto.objects.get(id=mes_id)
-    ini = date(int(Mes.ano), int(Mes.mes) - 1, 26)
-    fim = date(int(Mes.ano), int(Mes.mes), 25)
-    obra = Mes.obra
+    """
+    Gera um relatório em PDF com os pontos de todos os colaboradores
+    de um mês e obra específicos.
+    """
+    try:
+        mes_ponto = MesPonto.objects.get(id=mes_id)
+        
+        ini = date(int(mes_ponto.ano), int(mes_ponto.mes), 1) # Exemplo: 1º dia do mês
+        fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 28) # Exemplo: 28º dia do mês
 
-    pontos = Ponto.objects.filter(
-        data__range=(ini, fim),
-        colaborador__obra=obra
-    ).select_related("colaborador").order_by("colaborador__nome", "data")
+        pontos = Ponto.objects.filter(
+            data__range=(ini, fim),
+            colaborador__obra=mes_ponto.obra
+        ).select_related("colaborador").order_by("colaborador__nome", "data")
 
-    data = list(
-        pontos.values(
-            "id",
-            "colaborador__id",
-            "colaborador__nome",
-            "colaborador__cargo",
-            "colaborador__obra__nome",
-            "data",
-            "feriado",
-            "entrada_manha",
-            "saida_manha",
-            "entrada_tarde",
-            "saida_tarde",
-            "horas_trabalhadas",
+        data = list(
+            pontos.values(
+                "id",
+                "colaborador__id",
+                "colaborador__nome",
+                "colaborador__cargo",
+                "colaborador__obra__nome",
+                "data",
+                "feriado",
+                "entrada_manha",
+                "saida_manha",
+                "entrada_tarde",
+                "saida_tarde",
+                "horas_trabalhadas",
+            )
         )
-    )
-    resultado = []
-    for _, registros in groupby(data, key=itemgetter("colaborador__id")):
-        registros_list = list(registros)
-        resultado.append({
-            "colaborador": registros_list[0]['colaborador__nome'],
-            "cargo": registros_list[0]['colaborador__cargo'],
-            "obra": registros_list[0]['colaborador__obra__nome'],
-            "mes": int(Mes.mes),
-            "ano": int(Mes.ano),
-            "pontos": [
-                {
-                    "data": r["data"],
-                    "feriado": str(r["feriado"]),
-                    "entrada_manha": r["entrada_manha"],
-                    "saida_manha": r["saida_manha"],
-                    "entrada_tarde": r["entrada_tarde"],
-                    "saida_tarde": r["saida_tarde"],
-                    "horas_trabalhadas": r["horas_trabalhadas"],
-                } for r in registros_list
-            ]
-        })
-    pdf = gerar_pdf_ponto(resultado)
-    return HttpResponse(pdf, content_type="application/pdf")
+
+        resultado = []
+        for _, registros in groupby(data, key=itemgetter("colaborador__id")):
+            registros_list = list(registros)
+            resultado.append({
+                "colaborador": registros_list[0]['colaborador__nome'],
+                "cargo": registros_list[0]['colaborador__cargo'],
+                "obra": registros_list[0]['colaborador__obra__nome'],
+                "mes": int(mes_ponto.mes),
+                "ano": int(mes_ponto.ano),
+                "pontos": [
+                    {
+                        "data": r["data"],
+                        "feriado": str(r["feriado"]),
+                        "entrada_manha": r["entrada_manha"],
+                        "saida_manha": r["saida_manha"],
+                        "entrada_tarde": r["entrada_tarde"],
+                        "saida_tarde": r["saida_tarde"],
+                        "horas_trabalhadas": r["horas_trabalhadas"],
+                    } for r in registros_list
+                ]
+            })
+
+        pdf = gerar_pdf_ponto(resultado)
+        
+        return HttpResponse(pdf, content_type="application/pdf")
+        
+    except MesPonto.DoesNotExist:
+        return HttpResponse("Mês de ponto não encontrado.", status=404)
+    except Exception as e:
+        return HttpResponse(f"Erro ao gerar o PDF: {str(e)}", status=500)
+
