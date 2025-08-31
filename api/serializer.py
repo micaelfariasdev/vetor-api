@@ -30,7 +30,15 @@ class DespesasItemSerializer(serializers.ModelSerializer):
                   'titulo', 'empresa', 'valor', 'descricao']
 
 
+class ServicosSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Servicos
+        fields = '__all__'
+
+
 class ObrasSerializer(serializers.ModelSerializer):
+    servicos = ServicosSerializer(many=True, read_only=True)
 
     class Meta:
         model = Obras
@@ -77,23 +85,19 @@ class MesPontoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ServicosSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Servicos
-        fields = '__all__'
-
 class UnidadeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Unidade
         fields = '__all__'
 
+
 class ServicosUnidadeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ServicoUnidade
         fields = '__all__'
+
 
 class AndarSerializer(serializers.ModelSerializer):
 

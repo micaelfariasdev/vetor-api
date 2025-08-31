@@ -1,4 +1,4 @@
-from .models import Cronograma, ServicoCronograma
+from .models import Cronograma, ServicoCronograma, Obras
 from django.contrib import admin
 from . import models
 
@@ -14,7 +14,6 @@ class DespesasMesAdimin(admin.ModelAdmin):
                     'atualizado_em', 'mes', 'ano',]
 
 
-
 @admin.register(Cronograma)
 class CronogramaAdmin(admin.ModelAdmin):
     list_display = ['id', 'obra', 'author', 'criado_em', 'atualizado_em']
@@ -25,7 +24,7 @@ class CronogramaAdmin(admin.ModelAdmin):
 @admin.register(ServicoCronograma)
 class ServicoCronogramaAdmin(admin.ModelAdmin):
     list_editable = ['dias']
-    list_display = ['uid','titulo','dias','inicio', 'fim', 'progresso']
+    list_display = ['uid', 'titulo', 'dias', 'inicio', 'fim', 'progresso']
     list_filter = ['nivel', 'cronograma__obra']
     search_fields = ['titulo', 'cronograma__obra__nome']
     autocomplete_fields = ['pai', 'cronograma']
