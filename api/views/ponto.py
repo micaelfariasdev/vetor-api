@@ -96,9 +96,11 @@ def pdf_pontos_relatorio(request, mes_id):
     Mes = MesPonto.objects.get(id=mes_id)
     ini = date(int(Mes.ano), int(Mes.mes) - 1, 26)
     fim = date(int(Mes.ano), int(Mes.mes), 25)
+    obra = Mes.obra
 
     pontos = Ponto.objects.filter(
-        data__range=(ini, fim)
+        data__range=(ini, fim),
+        colaborador__obra=obra
     ).select_related("colaborador").order_by("colaborador__nome", "data")
 
     data = list(
