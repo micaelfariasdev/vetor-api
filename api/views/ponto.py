@@ -102,9 +102,9 @@ def pdf_pontos_relatorio(request, mes_id):
         mes_ponto = MesPonto.objects.get(id=mes_id)
 
         # Exemplo: 1º dia do mês
-        ini = date(int(mes_ponto.ano), int(mes_ponto.mes), 1)
+        ini = date(int(mes_ponto.ano), int(mes_ponto.mes) - 1, 26)
         # Exemplo: 28º dia do mês
-        fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 28)
+        fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 25)
 
         pontos = Ponto.objects.filter(
             data__range=(ini, fim),
