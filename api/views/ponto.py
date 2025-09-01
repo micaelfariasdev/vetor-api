@@ -10,6 +10,7 @@ from datetime import date, time
 from itertools import groupby
 from operator import itemgetter
 from django.http import HttpResponse
+import requests
 
 
 class PontoApiViewSet(ModelViewSet):
@@ -99,9 +100,11 @@ def pdf_pontos_relatorio(request, mes_id):
     """
     try:
         mes_ponto = MesPonto.objects.get(id=mes_id)
-        
-        ini = date(int(mes_ponto.ano), int(mes_ponto.mes), 1) # Exemplo: 1º dia do mês
-        fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 28) # Exemplo: 28º dia do mês
+
+        # Exemplo: 1º dia do mês
+        ini = date(int(mes_ponto.ano), int(mes_ponto.mes), 1)
+        # Exemplo: 28º dia do mês
+        fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 28)
 
         pontos = Ponto.objects.filter(
             data__range=(ini, fim),
@@ -136,23 +139,23 @@ def pdf_pontos_relatorio(request, mes_id):
                 "ano": int(mes_ponto.ano),
                 "pontos": [
                     {
-                        "data": r["data"],
+                        "data": str(r["data"]),
                         "feriado": str(r["feriado"]),
-                        "entrada_manha": r["entrada_manha"],
-                        "saida_manha": r["saida_manha"],
-                        "entrada_tarde": r["entrada_tarde"],
-                        "saida_tarde": r["saida_tarde"],
-                        "horas_trabalhadas": r["horas_trabalhadas"],
+                        "entrada_manha": str(r["entrada_manha"]),
+                        "saida_manha": str(r["saida_manha"]),
+                        "entrada_tarde": str(r["entrada_tarde"]),
+                        "saida_tarde": str(r["saida_tarde"]),
+                        "horas_trabalhadas": str(r["horas_trabalhadas"]),
                     } for r in registros_list
                 ]
             })
 
-        pdf = gerar_pdf_ponto(resultado)
-        
+        pdf = requests.post(
+            'http://64.181.171.161/gerar-pdf', json=resultado)
+
         return HttpResponse(pdf, content_type="application/pdf")
-        
+
     except MesPonto.DoesNotExist:
         return HttpResponse("Mês de ponto não encontrado.", status=404)
     except Exception as e:
         return HttpResponse(f"Erro ao gerar o PDF: {str(e)}", status=500)
-

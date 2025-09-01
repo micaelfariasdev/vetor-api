@@ -41,7 +41,7 @@ class Andar(models.Model):
         return f'Andar {self.nome} - {self.obra.nome}'
 
     class Meta:
-        unique_together = ('obra', 'numero_andar')
+        unique_together = ('obra', 'nome')
 
 
 class Unidade(models.Model):
