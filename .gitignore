@@ -143,4 +143,4 @@ venv/
 
 gunicorn-error-log
 
-/migrations
+*/migrations
