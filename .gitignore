@@ -142,3 +142,5 @@ venv/
 *.sqlite3')
 
 gunicorn-error-log
+
+/migrations
