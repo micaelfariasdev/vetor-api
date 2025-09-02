@@ -13,7 +13,8 @@ class ObrasApiViewSet(ModelViewSet):
 
         servicos_ids = request.data.pop('servicos', None)
 
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
@@ -25,18 +26,34 @@ class ObrasApiViewSet(ModelViewSet):
 
         return Response(serializer.data)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance)
+        dic = serializer.data
+        if dic['tipo_obra'] == 'PREDIO':
+            dic.pop("unidades")
+
+        else:
+            dic.pop("andares")
+
+        return Response(dic)
+
 
 class ServicosApiViewSet(ModelViewSet):
     queryset = Servicos.objects.all()
     serializer_class = ServicosSerializer
 
+
 class UnidadeApiViewSet(ModelViewSet):
     queryset = Unidade.objects.all()
     serializer_class = UnidadeSerializer
 
+
 class ServicosUnidadeApiViewSet(ModelViewSet):
     queryset = ServicoUnidade.objects.all()
     serializer_class = ServicosUnidadeSerializer
+
 
 class AndarApiViewSet(ModelViewSet):
     queryset = Andar.objects.all()

@@ -37,14 +37,6 @@ class ServicosSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ObrasSerializer(serializers.ModelSerializer):
-    servicos = ServicosSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Obras
-        fields = "__all__"
-
-
 class CronogramaSerializer(serializers.ModelSerializer):
     obra_name = serializers.CharField(source='obra.nome', read_only=True)
 
@@ -100,7 +92,34 @@ class ServicosUnidadeSerializer(serializers.ModelSerializer):
 
 
 class AndarSerializer(serializers.ModelSerializer):
+    unidades = UnidadeSerializer(many=True, read_only=True)
 
     class Meta:
         model = Andar
         fields = '__all__'
+
+
+class ObrasSerializer(serializers.ModelSerializer):
+    servicos = ServicosSerializer(many=True, read_only=True)
+    unidades = serializers.SerializerMethodField()
+    andares = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Obras
+        fields = "__all__"
+
+    def get_unidades(self, obj):
+        # Verifica se o tipo de obra não é 'PREDIO'
+        if obj.tipo_obra != 'PREDIO':
+            # Se não for, serializa as unidades
+            return UnidadeSerializer(obj.unidades.all(), many=True).data
+        # Se for 'PREDIO', retorna uma lista vazia, ou null
+        return []
+
+    def get_andares(self, obj):
+        # Verifica se o tipo de obra não é 'PREDIO'
+        if obj.tipo_obra == 'PREDIO':
+            # Se não for, serializa as unidades
+            return AndarSerializer(obj.andares.all(), many=True).data
+        # Se for 'PREDIO', retorna uma lista vazia, ou null
+        return []
