@@ -100,11 +100,12 @@ def pdf_pontos_relatorio(request, mes_id):
     """
     try:
         mes_ponto = MesPonto.objects.get(id=mes_id)
-
-        # Exemplo: 1º dia do mês
-        ini = date(int(mes_ponto.ano), int(mes_ponto.mes) - 1, 26)
-        # Exemplo: 28º dia do mês
-        fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 25)
+        if int(mes_ponto.mes) == 1:
+            ini = date(int(mes_ponto.ano) - 1, 12, 26)
+            fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 25)
+        else:
+            ini = date(int(mes_ponto.ano), int(mes_ponto.mes) - 1, 26)
+            fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 25)
 
         pontos = Ponto.objects.filter(
             data__range=(ini, fim),
@@ -120,6 +121,7 @@ def pdf_pontos_relatorio(request, mes_id):
                 "colaborador__obra__nome",
                 "data",
                 "feriado",
+                "atestado",
                 "entrada_manha",
                 "saida_manha",
                 "entrada_tarde",
@@ -141,6 +143,7 @@ def pdf_pontos_relatorio(request, mes_id):
                     {
                         "data": str(r["data"]),
                         "feriado": str(r["feriado"]),
+                        "atestado": str(r["atestado"]),
                         "entrada_manha": str(r["entrada_manha"]),
                         "saida_manha": str(r["saida_manha"]),
                         "entrada_tarde": str(r["entrada_tarde"]),
@@ -149,7 +152,7 @@ def pdf_pontos_relatorio(request, mes_id):
                     } for r in registros_list
                 ]
             })
-
+        print(resultado)
         pdf = requests.post(
             'http://64.181.171.161/gerar-pdf', json=resultado)
 
