@@ -20,7 +20,7 @@ class PontoApiViewSet(ModelViewSet):
     filterset_fields = ['colaborador']
 
     @action(detail=False, methods=["post"], url_path="salvar-registros")
-    def mes_colaborador(self, request):
+    def salvar_registros(self, request):
         data = request.data
         pontos = data['registros']
         colaborador_id = data['colaborador_id']
@@ -33,25 +33,35 @@ class PontoApiViewSet(ModelViewSet):
                 dia = date(ano, int(ponto['mes']), int(ponto['data']))
                 horarios = ponto["valores"]
                 feriado = True if horarios[4] else False
-                entrada_manha = time.fromisoformat(horarios[0])
-                saida_manha = time.fromisoformat(horarios[1])
-                entrada_tarde = time.fromisoformat(horarios[2])
-                saida_tarde = time.fromisoformat(horarios[3])
+                if any(horarios[:4]):
+                    entrada_manha = time.fromisoformat(
+                        horarios[0]) if horarios[0] else None
+                    saida_manha = time.fromisoformat(
+                        horarios[1]) if horarios[1] else None
+                    entrada_tarde = time.fromisoformat(
+                        horarios[2]) if horarios[2] else None
+                    saida_tarde = time.fromisoformat(
+                        horarios[3]) if horarios[3] else None
+                    dados = {
+                        "colaborador": colaborador_id,
+                        "data": dia,
+                        "feriado": feriado,
+                        "entrada_manha": entrada_manha,
+                        "saida_manha": saida_manha,
+                        "entrada_tarde": entrada_tarde,
+                        "saida_tarde": saida_tarde,
+                    }
+                else:
+                    dados = {
+                        "colaborador": colaborador_id,
+                        "data": dia,
+                        "feriado": feriado,
+                    }
 
                 ponto_existe = Ponto.objects.filter(
                     colaborador_id=colaborador_id,
                     data=dia
                 ).first()
-
-                dados = {
-                    "colaborador": colaborador_id,
-                    "data": dia,
-                    "feriado": feriado,
-                    "entrada_manha": entrada_manha,
-                    "saida_manha": saida_manha,
-                    "entrada_tarde": entrada_tarde,
-                    "saida_tarde": saida_tarde,
-                }
 
                 if ponto_existe:
                     serializer = self.get_serializer(
@@ -80,7 +90,7 @@ class MesPontoApiViewSet(ModelViewSet):
     serializer_class = MesPontoSerializer
 
     @action(detail=True, methods=["get"], url_path="relacao")
-    def salvar_registros(self, request, pk=None):
+    def mes_colaborador(self, request, pk=None):
         mes_ponto = self.get_object()
         obra = mes_ponto.obra
         colaboradores = obra.colaboradores.all()
