@@ -46,6 +46,7 @@ class PontoApiViewSet(ModelViewSet):
                         "colaborador": colaborador_id,
                         "data": dia,
                         "feriado": feriado,
+                        "atestado": atestado,
                         "entrada_manha": entrada_manha,
                         "saida_manha": saida_manha,
                         "entrada_tarde": entrada_tarde,
@@ -56,6 +57,7 @@ class PontoApiViewSet(ModelViewSet):
                         "colaborador": colaborador_id,
                         "data": dia,
                         "feriado": feriado,
+                        "atestado": atestado,
                     }
 
                 ponto_existe = Ponto.objects.filter(
