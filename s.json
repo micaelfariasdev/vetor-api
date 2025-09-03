@@ -1,128 +1,251 @@
-{
-  "author": 1,
-  "colaborador_id": 1,
-  "mes": 9,
-  "ano": 2025,
-  "registros": [
-    {
-      "data": "26",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "08"
-    },
-    {
-      "data": "27",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "08"
-    },
-    {
-      "data": "28",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "08"
-    },
-    {
-      "data": "29",
-      "valores": ["07:00", "12:00", "13:00", "16:00", false],
-      "mes": "08"
-    },
-    {
-      "data": "01",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "02",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "03",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "04",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "05",
-      "valores": ["07:00", "12:00", "13:00", "16:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "06",
-      "valores": ["07:00", "", "", "", true],
-      "mes": "09"
-    },
-    {
-      "data": "08",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "09",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "10",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "11",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "12",
-      "valores": ["07:00", "12:00", "13:00", "16:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "15",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "16",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "17",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "18",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "19",
-      "valores": ["07:00", "12:00", "13:00", "16:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "22",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "23",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "24",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    },
-    {
-      "data": "25",
-      "valores": ["07:00", "12:00", "13:00", "17:00", false],
-      "mes": "09"
-    }
-  ]
-}
+[
+  {
+    "colaborador": "Micael Farias",
+    "cargo": "Auxiliar de Engenharia",
+    "obra": "micael farias",
+    "mes": 9,
+    "ano": 2025,
+    "pontos": [
+      {
+        "data": "2025-08-26",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-08-27",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-08-28",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-08-29",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "16:00:00",
+        "horas_trabalhadas": "08:00"
+      },
+      {
+        "data": "2025-09-01",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-02",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-03",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-04",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-05",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "16:00:00",
+        "horas_trabalhadas": "08:00"
+      },
+      {
+        "data": "2025-09-06",
+        "feriado": "True",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "None",
+        "entrada_tarde": "None",
+        "saida_tarde": "None",
+        "horas_trabalhadas": "00:00"
+      },
+      {
+        "data": "2025-09-08",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-09",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-10",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-11",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-12",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "16:00:00",
+        "horas_trabalhadas": "08:00"
+      },
+      {
+        "data": "2025-09-15",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-16",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-17",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-18",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-19",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "16:00:00",
+        "horas_trabalhadas": "08:00"
+      },
+      {
+        "data": "2025-09-22",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-23",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-24",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      },
+      {
+        "data": "2025-09-25",
+        "feriado": "False",
+        "atestado": "False",
+        "entrada_manha": "07:00:00",
+        "saida_manha": "12:00:00",
+        "entrada_tarde": "13:00:00",
+        "saida_tarde": "17:00:00",
+        "horas_trabalhadas": "09:00"
+      }
+    ]
+  }
+]

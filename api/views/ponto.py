@@ -154,14 +154,15 @@ def pdf_pontos_relatorio(request, mes_id):
                         "data": str(r["data"]),
                         "feriado": str(r["feriado"]),
                         "atestado": str(r["atestado"]),
-                        "entrada_manha": str(r["entrada_manha"]),
-                        "saida_manha": str(r["saida_manha"]),
-                        "entrada_tarde": str(r["entrada_tarde"]),
-                        "saida_tarde": str(r["saida_tarde"]),
+                        "entrada_manha": str(r["entrada_manha"]) if not r["entrada_manha"] == None else None,
+                        "saida_manha": str(r["saida_manha"]) if not r["saida_manha"] == None else None,
+                        "entrada_tarde": str(r["entrada_tarde"]) if not r["entrada_tarde"] == None else None,
+                        "saida_tarde": str(r["saida_tarde"]) if not r["saida_tarde"] == None else None,
                         "horas_trabalhadas": str(r["horas_trabalhadas"]),
                     } for r in registros_list
                 ]
             })
+
         print(resultado)
         pdf = requests.post(
             'http://64.181.171.161/gerar-pdf', json=resultado)
