@@ -33,7 +33,20 @@ class PontoApiViewSet(ModelViewSet):
                 dia = date(ano, int(ponto['mes']), int(ponto['data']))
                 horarios = ponto["valores"]
                 feriado = True if horarios[4] else False
+                delete = True if horarios[6] else False
                 atestado = True if horarios[5] else False
+
+                ponto_existe = Ponto.objects.filter(
+                    colaborador_id=colaborador_id,
+                    data=dia
+                ).first()
+
+                if delete:
+                    if ponto_existe:
+                        ponto_existe.delete()
+                        resultados.append({"status": "deletado", "registro": ponto})
+                    continue  # <--- CORREÇÃO: Pula para o próximo item do loop
+
                 if any(horarios[:4]):
                     entrada_manha = time.fromisoformat(
                         horarios[0]) if horarios[0] else None
@@ -47,6 +60,7 @@ class PontoApiViewSet(ModelViewSet):
                         "colaborador": colaborador_id,
                         "data": dia,
                         "feriado": feriado,
+                        "delete": delete,
                         "atestado": atestado,
                         "entrada_manha": entrada_manha,
                         "saida_manha": saida_manha,
@@ -60,11 +74,6 @@ class PontoApiViewSet(ModelViewSet):
                         "feriado": feriado,
                         "atestado": atestado,
                     }
-
-                ponto_existe = Ponto.objects.filter(
-                    colaborador_id=colaborador_id,
-                    data=dia
-                ).first()
 
                 if ponto_existe:
                     serializer = self.get_serializer(
