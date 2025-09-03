@@ -33,6 +33,7 @@ class PontoApiViewSet(ModelViewSet):
                 dia = date(ano, int(ponto['mes']), int(ponto['data']))
                 horarios = ponto["valores"]
                 feriado = True if horarios[4] else False
+                atestado = True if horarios[5] else False
                 if any(horarios[:4]):
                     entrada_manha = time.fromisoformat(
                         horarios[0]) if horarios[0] else None
