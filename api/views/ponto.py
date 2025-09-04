@@ -29,7 +29,7 @@ class PontoApiViewSet(ModelViewSet):
 
         for idx, ponto in enumerate(pontos):
             try:
-                if int(data['mes']) == 1:
+                if int(data['mes']) == 1 and int(ponto['mes']) == 12:
                     dia = date(ano-1, int(ponto['mes']), int(ponto['data']))
                 else:
                     dia = date(ano, int(ponto['mes']), int(ponto['data']))
