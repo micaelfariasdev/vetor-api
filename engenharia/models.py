@@ -76,6 +76,17 @@ class ServicoUnidade(models.Model):
     class Meta:
         unique_together = ('unidade', 'servico')
 
+    def save(self, *args, **kwargs):
+        print(self.progresso)
+        if self.progresso == 100.00:
+            self.status = 'CONCLUIDO'
+        elif self.progresso == 0.00:
+            self.status = 'NAO_INICIADO'
+        elif self.progresso > 0.00 and self.progresso < 100.00:
+            self.status = 'EM_ANDAMENTO'
+
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f'{self.servico.titulo} - {self.unidade.nome_ou_numero} ({self.status})'
 

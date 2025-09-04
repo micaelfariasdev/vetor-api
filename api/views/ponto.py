@@ -1,4 +1,3 @@
-from ..utils import gerar_pdf_ponto
 from rest_framework.decorators import api_view, action
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
@@ -30,7 +29,11 @@ class PontoApiViewSet(ModelViewSet):
 
         for idx, ponto in enumerate(pontos):
             try:
-                dia = date(ano, int(ponto['mes']), int(ponto['data']))
+                if int(data['mes']) == 1:
+                    dia = date(ano-1, int(ponto['mes']), int(ponto['data']))
+                else:
+                    dia = date(ano, int(ponto['mes']), int(ponto['data']))
+
                 horarios = ponto["valores"]
                 feriado = True if horarios[4] else False
                 delete = True if horarios[6] else False
@@ -44,7 +47,8 @@ class PontoApiViewSet(ModelViewSet):
                 if delete:
                     if ponto_existe:
                         ponto_existe.delete()
-                        resultados.append({"status": "deletado", "registro": ponto})
+                        resultados.append(
+                            {"status": "deletado", "registro": ponto})
                     continue  # <--- CORREÇÃO: Pula para o próximo item do loop
 
                 if any(horarios[:4]):
