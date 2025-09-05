@@ -122,6 +122,7 @@ class Ponto(models.Model):
     horas_trabalhadas = models.CharField(max_length=150, null=True, blank=True)
     feriado = models.BooleanField(default=False, verbose_name='Feriado?')
     atestado = models.BooleanField(default=False, verbose_name='Atestado?')
+    falta = models.BooleanField(default=False, verbose_name='Falta?')
 
     class Meta:
         constraints = [
@@ -161,7 +162,7 @@ class Ponto(models.Model):
         # Guarda como datetime.time
         self.horas_trabalhadas = f"{h:02d}:{m:02d}"
 
-        if self.atestado:
+        if self.atestado or self.falta:
             self.horas_trabalhadas = '00:00'
             self.entrada_manha = '00:00'
             self.saida_manha = '00:00'
