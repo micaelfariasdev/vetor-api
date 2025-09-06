@@ -77,7 +77,6 @@ class ServicoUnidade(models.Model):
         unique_together = ('unidade', 'servico')
 
     def save(self, *args, **kwargs):
-        print(self.progresso)
         if self.progresso == 100.00:
             self.status = 'CONCLUIDO'
         elif self.progresso == 0.00:

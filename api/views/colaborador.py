@@ -1,7 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from ..serializer import ColaboradorSerializer
-from engenharia.models import Colaborador
+from engenharia.models import Colaborador, MesPonto
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from datetime import datetime, time, timedelta, date
@@ -37,10 +37,24 @@ class ColaboradorApiViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend]
     filterset_fields = '__all__'
 
-    @action(detail=True, methods=["get"], url_path="pontos")
-    def colaborador_pontos(self, request, pk=None):
+    @action(detail=True, methods=["get"], url_path=r"pontos/(?P<mes>\d+)")
+    def colaborador_pontos(self, request, pk=None, mes=None):
         colaborador = self.get_object()
-        pontos = colaborador.pontos.all()
+        mes_ponto = MesPonto.objects.get(pk=mes)
+
+        data_inicio = date(
+            year=(mes_ponto.ano if mes_ponto.mes != 1 else mes_ponto.ano - 1),
+            month=(mes_ponto.mes - 1 if mes_ponto.mes != 1 else 12),
+            day=26
+        )
+
+        data_fim = date(
+            year=mes_ponto.ano,
+            month=mes_ponto.mes,
+            day=25
+        )
+
+        pontos = colaborador.pontos.filter(data__range=[data_inicio, data_fim])
         hr_falt = timedelta()
         hr_ext = timedelta()
         hr_fer = timedelta()
@@ -54,7 +68,6 @@ class ColaboradorApiViewSet(ModelViewSet):
             if formatar_semana(feriado) == "SÁB":
                 data_inicio = feriado - timedelta(days=5)
                 data_fim = feriado - timedelta(days=1)
-
                 semana = list(
                     filter(lambda r:
                            data_inicio <= r['data'] <= data_fim, pontos))
@@ -75,32 +88,24 @@ class ColaboradorApiViewSet(ModelViewSet):
                     jornada_diaria = timedelta(hours=8)
                     if horas_trab < jornada_diaria:
                         hr_falt += jornada_diaria - horas_trab
-                        horas_extras = f'-{str(jornada_diaria - horas_trab)}'
                     elif horas_trab > jornada_diaria:
                         hr_ext += horas_trab - jornada_diaria
-                        horas_extras = horas_trab - jornada_diaria
                 elif dia_semana == "DOM" or ponto['feriado'] == 'True':
                     hr_fer += horas_trab
-                    horas_extras = horas_trab
                 elif dia_semana not in ["SEX", "SÁB", "DOM"]:
                     jornada_diaria = timedelta(hours=9)
                     if horas_trab < jornada_diaria:
                         hr_falt += jornada_diaria - horas_trab
-                        horas_extras = f'-{str(jornada_diaria - horas_trab)}'
                     elif horas_trab > jornada_diaria:
                         hr_ext += horas_trab - jornada_diaria
-                        horas_extras = horas_trab - jornada_diaria
                 elif dia_semana == "SEX":
                     jornada_diaria = timedelta(hours=8)
                     if horas_trab < jornada_diaria:
                         hr_falt += jornada_diaria - horas_trab
-                        horas_extras = f'-{str(jornada_diaria - horas_trab)}'
                     elif horas_trab > jornada_diaria:
                         hr_ext += horas_trab - jornada_diaria
-                        horas_extras = horas_trab - jornada_diaria
                 elif dia_semana == "SÁB":
                     hr_ext += horas_trab
-                    horas_extras = horas_trab
 
         dados = self.serializer_class(colaborador).data
         dados['horas-faltando'] = formatar_horas(hr_falt)
