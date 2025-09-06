@@ -76,9 +76,10 @@ class ColaboradorApiViewSet(ModelViewSet):
 
         for ponto in pontos:
             if ponto['atestado'] == True:
-                ...
+                continue
             elif ponto['falta'] == True:
                 falta += 1
+                continue
             else:
                 dia_semana = formatar_semana(ponto['data'])
                 h, m = ponto['horas_trabalhadas'].split(':')
@@ -90,7 +91,7 @@ class ColaboradorApiViewSet(ModelViewSet):
                         hr_falt += jornada_diaria - horas_trab
                     elif horas_trab > jornada_diaria:
                         hr_ext += horas_trab - jornada_diaria
-                elif dia_semana == "DOM" or ponto['feriado'] == 'True':
+                elif dia_semana == "DOM" or ponto['feriado'] == True:
                     hr_fer += horas_trab
                 elif dia_semana not in ["SEX", "SÁB", "DOM"]:
                     jornada_diaria = timedelta(hours=9)
