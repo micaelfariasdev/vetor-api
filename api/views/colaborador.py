@@ -75,7 +75,7 @@ class ColaboradorApiViewSet(ModelViewSet):
                     s['sem_feriado'] = True
 
         for ponto in pontos:
-            if ponto['atestado'] == True:
+            if ponto['atestado'] == True or ponto['ferias'] == True:
                 continue
             elif ponto['falta'] == True and ponto['data'].month == mes_ponto.mes:
                 falta += 1
