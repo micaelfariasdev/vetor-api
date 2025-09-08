@@ -66,7 +66,6 @@ def listar_urls_api(request):
         if url['url'].split('/')[0] in 'admin media static':
             continue
         if url['nome'] in 'api-root':
-            print(url['nome'])
             continue
 
         caminho_url = url['url'].strip('/').split('/')

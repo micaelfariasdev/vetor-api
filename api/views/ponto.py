@@ -189,7 +189,6 @@ def pdf_pontos_relatorio(request, mes_id):
                 ]
             })
 
-        print(resultado)
         pdf = requests.post(
             'http://64.181.171.161/gerar-pdf', json=resultado)
 
