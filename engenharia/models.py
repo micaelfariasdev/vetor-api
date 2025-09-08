@@ -123,6 +123,7 @@ class Ponto(models.Model):
     feriado = models.BooleanField(default=False, verbose_name='Feriado?')
     atestado = models.BooleanField(default=False, verbose_name='Atestado?')
     falta = models.BooleanField(default=False, verbose_name='Falta?')
+    ferias = models.BooleanField(default=False, verbose_name='Ferias?')
 
     class Meta:
         constraints = [

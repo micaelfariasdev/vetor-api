@@ -39,6 +39,7 @@ class PontoApiViewSet(ModelViewSet):
                 atestado = True if horarios[5] else False
                 delete = True if horarios[6] else False
                 falta = True if horarios[7] else False
+                ferias = True if horarios[8] else False
 
                 ponto_existe = Ponto.objects.filter(
                     colaborador_id=colaborador_id,
@@ -67,6 +68,7 @@ class PontoApiViewSet(ModelViewSet):
                         "feriado": feriado,
                         "delete": delete,
                         "falta": falta,
+                        "ferias": ferias,
                         "atestado": atestado,
                         "entrada_manha": entrada_manha,
                         "saida_manha": saida_manha,
@@ -79,6 +81,7 @@ class PontoApiViewSet(ModelViewSet):
                         "data": dia,
                         "feriado": feriado,
                         "falta": falta,
+                        "ferias": ferias,
                         "atestado": atestado,
                     }
 
@@ -150,6 +153,7 @@ def pdf_pontos_relatorio(request, mes_id):
                 "colaborador__obra__nome",
                 "data",
                 "feriado",
+                "ferias",
                 "falta",
                 "atestado",
                 "entrada_manha",
@@ -174,6 +178,7 @@ def pdf_pontos_relatorio(request, mes_id):
                         "data": str(r["data"]),
                         "feriado": str(r["feriado"]),
                         "falta": str(r["falta"]),
+                        "ferias": str(r["ferias"]),
                         "atestado": str(r["atestado"]),
                         "entrada_manha": str(r["entrada_manha"]) if not r["entrada_manha"] == None else None,
                         "saida_manha": str(r["saida_manha"]) if not r["saida_manha"] == None else None,
