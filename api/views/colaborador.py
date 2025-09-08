@@ -77,7 +77,7 @@ class ColaboradorApiViewSet(ModelViewSet):
         for ponto in pontos:
             if ponto['atestado'] == True:
                 continue
-            elif ponto['falta'] == True:
+            elif ponto['falta'] == True and ponto['data'].month == mes_ponto.mes:
                 falta += 1
                 continue
             else:
