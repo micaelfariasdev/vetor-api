@@ -9,24 +9,31 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
+# -------------------
+# Registro de usuário
+# -------------------
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
 
+# -------------------
+# Login com JWT via cookies
+# -------------------
 class CookieTokenObtainPairView(TokenObtainPairView):
+    @csrf_exempt
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         data = response.data
 
-        # Cookies HttpOnly para segurança
+        # Cookies HttpOnly
         response.set_cookie(
             key="access",
             value=data["access"],
             httponly=True,
-            secure=True,        # HTTPS obrigatório
-            samesite="None",    # crucial para cross-site
-            domain="micaelfarias.com"  # domínio que cobre o frontend
+            secure=True,
+            samesite="None",
+            domain="micaelfarias.com"
         )
         response.set_cookie(
             key="refresh",
@@ -35,31 +42,34 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             secure=True,
             samesite="None",
             domain="micaelfarias.com"
-        )   
-        return response
-
-
-class CookieTokenRefreshView(TokenRefreshView):
-    def post(self, request, *args, **kwargs):
-        # pega refresh do cookie
-        request.data["refresh"] = request.COOKIES.get("refresh")
-        response = super().post(request, *args, **kwargs)
-        data = response.data
-
-        # atualiza access
-        response.set_cookie(
-            key="access",
-            value=data["access"],
-            httponly=True,
-            secure=True,        # HTTPS obrigatório
-            samesite="None",    # crucial para cross-site
-            domain="micaelfarias.com"  # domínio que cobre o frontend
         )
         return response
 
 
+# -------------------
+# Refresh token via cookie
+# -------------------
+class CookieTokenRefreshView(TokenRefreshView):
+    @csrf_exempt
+    def post(self, request, *args, **kwargs):
+        request.data["refresh"] = request.COOKIES.get("refresh")
+        response = super().post(request, *args, **kwargs)
+        data = response.data
+
+        response.set_cookie(
+            key="access",
+            value=data["access"],
+            httponly=True,
+            secure=True,
+            samesite="None",
+            domain="micaelfarias.com"
+        )
+        return response
 
 
+# -------------------
+# Endpoint /me/ 100% JWT
+# -------------------
 @method_decorator(csrf_exempt, name='dispatch')
 class MeView(APIView):
     authentication_classes = [JWTAuthentication]
@@ -72,3 +82,15 @@ class MeView(APIView):
             "username": user.username,
             "email": user.email,
         })
+
+
+# -------------------
+# Logout
+# -------------------
+@method_decorator(csrf_exempt, name='dispatch')
+class LogoutView(APIView):
+    def post(self, request):
+        response = Response({"detail": "Logout successful"})
+        response.delete_cookie("access", domain="micaelfarias.com")
+        response.delete_cookie("refresh", domain="micaelfarias.com")
+        return response
