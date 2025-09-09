@@ -123,3 +123,19 @@ class ObrasSerializer(serializers.ModelSerializer):
             return AndarSerializer(obj.andares.all(), many=True).data
         # Se for 'PREDIO', retorna uma lista vazia, ou null
         return []
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id", "username", "email", "password"]
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data["username"],
+            email=validated_data["email"],
+            password=validated_data["password"],
+        )
+        return user

@@ -1,5 +1,9 @@
-from django.urls import path
 from . import views
+from django.urls import path
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 from rest_framework.routers import DefaultRouter
 
 
@@ -37,4 +41,9 @@ urlpatterns += [
          views.recalcular_cronograma),
     path('ponto/pdf/<int:mes_id>/',
          views.pdf_pontos_relatorio),
+    path("register/", views.RegisterView.as_view(), name="register"),
+    path("token/", views.CookieTokenObtainPairView.as_view(),
+         name="token_obtain_pair"),
+    path("token/refresh/", views.CookieTokenRefreshView.as_view(),
+         name="token_refresh"),
 ]
