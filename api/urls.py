@@ -46,5 +46,6 @@ urlpatterns += [
          name="token_obtain_pair"),
     path("token/refresh/", views.CookieTokenRefreshView.as_view(),
          name="token_refresh"),
-         path("me/", views.MeView.as_view(), name="me"),
+    path("me/", views.MeView.as_view(), name="me"),
+    path("logout/", views.LogoutView.as_view(), name="logout"),
 ]

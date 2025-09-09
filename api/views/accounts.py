@@ -12,6 +12,8 @@ from django.utils.decorators import method_decorator
 # -------------------
 # Registro de usuário
 # -------------------
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
@@ -30,19 +32,16 @@ class CookieTokenObtainPairView(TokenObtainPairView):
         response.set_cookie(
             key="access",
             value=data["access"],
-            httponly=True,
-            secure=True,
-            samesite="None",
-            domain="micaelfarias.com"
+            secure=False,
+            samesite="none",
         )
         response.set_cookie(
             key="refresh",
             value=data["refresh"],
-            httponly=True,
-            secure=True,
-            samesite="None",
-            domain="micaelfarias.com"
+            secure=False,
+            samesite="none",
         )
+
         return response
 
 
@@ -59,10 +58,8 @@ class CookieTokenRefreshView(TokenRefreshView):
         response.set_cookie(
             key="access",
             value=data["access"],
-            httponly=True,
-            secure=True,
-            samesite="None",
-            domain="micaelfarias.com"
+            secure=False,
+            samesite="none",
         )
         return response
 
@@ -72,10 +69,11 @@ class CookieTokenRefreshView(TokenRefreshView):
 # -------------------
 @method_decorator(csrf_exempt, name='dispatch')
 class MeView(APIView):
-    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def get(self, request):
+
         user = request.user
         return Response({
             "id": user.id,
@@ -89,9 +87,10 @@ class MeView(APIView):
 # -------------------
 @method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
-    authentication_classes = [JWTAuthentication] # Adicione esta linha
-    permission_classes = [IsAuthenticated] # Opcional, mas boa prática para logout
-    
+    authentication_classes = [JWTAuthentication]  # Adicione esta linha
+    # Opcional, mas boa prática para logout
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
         response = Response({"detail": "Logout successful"})
         response.delete_cookie("access", domain="micaelfarias.com")
