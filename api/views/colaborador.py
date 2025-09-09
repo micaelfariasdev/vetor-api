@@ -80,6 +80,8 @@ class ColaboradorApiViewSet(ModelViewSet):
             elif ponto['falta'] == True and ponto['data'].month == mes_ponto.mes:
                 falta += 1
                 continue
+            elif ponto['falta'] == True:
+                continue
             else:
                 dia_semana = formatar_semana(ponto['data'])
                 h, m = ponto['horas_trabalhadas'].split(':')
