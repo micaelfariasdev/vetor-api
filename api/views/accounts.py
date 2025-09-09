@@ -5,6 +5,9 @@ from django.contrib.auth.models import User
 from ..serializer import RegisterSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -23,7 +26,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             httponly=True,
             secure=True,        # HTTPS obrigatório
             samesite="None",    # crucial para cross-site
-            domain="vetor.micaelfarias.com"  # domínio que cobre o frontend
+            domain="micaelfarias.com"  # domínio que cobre o frontend
         )
         response.set_cookie(
             key="refresh",
@@ -31,7 +34,7 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             httponly=True,
             secure=True,
             samesite="None",
-            domain="vetor.micaelfarias.com"
+            domain="micaelfarias.com"
         )   
         return response
 
@@ -50,12 +53,16 @@ class CookieTokenRefreshView(TokenRefreshView):
             httponly=True,
             secure=True,        # HTTPS obrigatório
             samesite="None",    # crucial para cross-site
-            domain="vetor.micaelfarias.com"  # domínio que cobre o frontend
+            domain="micaelfarias.com"  # domínio que cobre o frontend
         )
         return response
 
 
+
+
+@method_decorator(csrf_exempt, name='dispatch')
 class MeView(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -64,5 +71,4 @@ class MeView(APIView):
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            # adicione outros campos que quiser expor
         })
