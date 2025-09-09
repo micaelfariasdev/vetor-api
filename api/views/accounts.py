@@ -21,14 +21,12 @@ class CookieTokenObtainPairView(TokenObtainPairView):
             key="access",
             value=data["access"],
             httponly=True,
-            secure=True,        # HTTPS obrigatório
             samesite="None",    # crucial para cross-site
         )
         response.set_cookie(
             key="refresh",
             value=data["refresh"],
             httponly=True,
-            secure=True,
             samesite="None",
         )   
         return response
@@ -46,9 +44,7 @@ class CookieTokenRefreshView(TokenRefreshView):
             key="access",
             value=data["access"],
             httponly=True,
-            secure=True,        # HTTPS obrigatório
             samesite="None",    # crucial para cross-site
-            domain="micaelfarias.com"  # domínio que cobre o frontend
         )
         return response
 
