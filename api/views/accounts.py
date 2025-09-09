@@ -71,7 +71,6 @@ class CookieTokenRefreshView(TokenRefreshView):
 # Endpoint /me/ 100% JWT
 # -------------------
 @method_decorator(csrf_exempt, name='dispatch')
-@authentication_classes([JWTAuthentication])
 class MeView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -89,8 +88,10 @@ class MeView(APIView):
 # Logout
 # -------------------
 @method_decorator(csrf_exempt, name='dispatch')
-@authentication_classes([JWTAuthentication])
 class LogoutView(APIView):
+    authentication_classes = [JWTAuthentication] # Adicione esta linha
+    permission_classes = [IsAuthenticated] # Opcional, mas boa prática para logout
+    
     def post(self, request):
         response = Response({"detail": "Logout successful"})
         response.delete_cookie("access", domain="micaelfarias.com")
