@@ -227,7 +227,8 @@ def gerar_pdf_ponto(registros):
             if registro_encontrado:
                 if registro_encontrado['atestado'] == 'True':
                     ...
-                elif registro_encontrado['falta'] == 'True':
+                elif registro_encontrado['falta'] == 'True' and datetime.strptime(
+                        registro_encontrado['data'], "%Y-%m-%d").month == int(col['mes']):
                     falta += 1
                 else:
                     h, m = registro_encontrado['horas_trabalhadas'].split(":")
