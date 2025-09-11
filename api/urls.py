@@ -30,6 +30,12 @@ router.register('servico-unidade', views.ServicosUnidadeApiViewSet,
                 basename='servico-unidade')
 router.register('andar', views.AndarApiViewSet,
                 basename='andar')
+router.register('medicao', views.MedicaoApiViewSet,
+                basename='medicao')
+router.register('medicao-colaborador', views.MedicaoColaboradorApiViewSet,
+                basename='medicao-colaborador')
+router.register('item-medicao', views.ItemMedicaoApiViewSet,
+                basename='item-medicao')
 
 urlpatterns = router.urls
 

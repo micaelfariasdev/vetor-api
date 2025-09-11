@@ -4,3 +4,4 @@ from .cronograma import *
 from .ponto import *
 from .despesas import *
 from .accounts import *
+from .medicao import *

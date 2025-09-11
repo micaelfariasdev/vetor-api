@@ -87,7 +87,7 @@ class ServicoUnidade(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.servico.titulo} - {self.unidade.nome_ou_numero} ({self.status})'
+        return f'{self.servico.titulo} - Obra {self.unidade.andar.obra.nome} andar {self.unidade.andar.nome} unidade {self.unidade.nome_ou_numero} ({self.status})'
 
 
 class Colaborador(models.Model):
@@ -277,3 +277,83 @@ class ServicoCronograma(models.Model):
             self.fim = self.inicio + timedelta(days=self.dias)
 
         super().save(*args, **kwargs)
+
+
+class Medicao(models.Model):
+    data_medicao = models.DateField(auto_now_add=True)
+    data_pagamento = models.DateField(blank=True, null=True)
+    obra = models.ForeignKey(
+        Obras,
+        on_delete=models.CASCADE,
+        related_name='medicoes'
+    )
+
+    def __str__(self):
+        return f"Medição em {self.data_medicao} para a obra {self.obra.nome}"
+
+    class Meta:
+        verbose_name = "Medição"
+        verbose_name_plural = "Medições"
+
+
+class MedicaoColaborador(models.Model):
+    medicao = models.ForeignKey(
+        Medicao,
+        on_delete=models.CASCADE,
+        related_name='colaboradores_associados'
+    )
+    colaborador = models.ForeignKey(
+        Colaborador,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='medicoes_associadas'
+    )
+
+    def __str__(self):
+
+        return f"{self.colaborador.nome} em Medição {self.medicao.id}"
+
+    class Meta:
+        unique_together = ('medicao', 'colaborador')
+        verbose_name = "Colaborador em Medição"
+        verbose_name_plural = "Colaboradores em Medições"
+
+
+class ItemMedicao(models.Model):
+    colaborador = models.ForeignKey(
+        MedicaoColaborador,
+        on_delete=models.CASCADE,
+        related_name='itens'
+    )
+    servico_unidade = models.ForeignKey(
+        ServicoUnidade,
+        on_delete=models.CASCADE,
+        related_name='itens_medicao'
+    )
+    quantidade_feita = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.0
+    )
+    valor_unitario = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.0
+    )
+    valor_total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.0
+    )
+
+    def save(self, *args, **kwargs):
+        self.valor_total = self.quantidade_feita * self.valor_unitario
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.quantidade_feita} de {self.servico_unidade.servico.titulo} para {self.colaborador.nome}"
+
+    class Meta:
+        verbose_name = "Item de Medição"
+        verbose_name_plural = "Itens de Medição"

@@ -109,19 +109,13 @@ class ObrasSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def get_unidades(self, obj):
-        # Verifica se o tipo de obra não é 'PREDIO'
         if obj.tipo_obra != 'PREDIO':
-            # Se não for, serializa as unidades
             return UnidadeSerializer(obj.unidades.all(), many=True).data
-        # Se for 'PREDIO', retorna uma lista vazia, ou null
         return []
 
     def get_andares(self, obj):
-        # Verifica se o tipo de obra não é 'PREDIO'
         if obj.tipo_obra == 'PREDIO':
-            # Se não for, serializa as unidades
             return AndarSerializer(obj.andares.all(), many=True).data
-        # Se for 'PREDIO', retorna uma lista vazia, ou null
         return []
 
 
@@ -142,3 +136,40 @@ class RegisterSerializer(serializers.ModelSerializer):
             last_name=validated_data["last_name"]
         )
         return user
+
+
+class ItemMedicaoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ItemMedicao
+        fields = ['id', 'colaborador', 'servico_unidade', 'quantidade_feita',
+                  'valor_unitario', 'valor_total']
+        read_only_fields = ['valor_total']
+
+
+class MedicaoColaboradorSerializer(serializers.ModelSerializer):
+    itens = ItemMedicaoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = MedicaoColaborador
+        fields = ['id', 'colaborador', 'medicao', 'itens']
+
+
+# Serializer Principal para a Medição
+
+class MedicaoSerializer(serializers.ModelSerializer):
+    # Campos de relacionamento para aninhar a exibição de dados
+    colaboradores_associados = MedicaoColaboradorSerializer(
+        many=True, read_only=True)
+
+    class Meta:
+        model = Medicao
+        fields = ['id', 'obra', 'data_medicao', 'data_pagamento',
+                  'colaboradores_associados', ]
+
+    def create(self, validated_data):
+        # Este método será usado para criar a medição e seus itens/colaboradores
+        # ... lógica de criação aqui ...
+        # Se você estiver usando ViewSets e rotas padrão,
+        # o DRF cuidará da maioria das operações.
+        return Medicao.objects.create(**validated_data)
