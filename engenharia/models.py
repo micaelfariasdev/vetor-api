@@ -346,6 +346,17 @@ class ItemMedicao(models.Model):
         decimal_places=2,
         default=0.0
     )
+    unidade_medida = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="Unidade de medida do serviço (ex: m², m³, un)"
+    )
+    descricao = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Descrição adicional do item de medição"
+    )
 
     def save(self, *args, **kwargs):
         self.valor_total = self.quantidade_feita * self.valor_unitario

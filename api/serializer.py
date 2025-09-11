@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import serializers
 from engenharia.models import *
 from django.contrib.auth.models import User
@@ -139,37 +140,54 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class ItemMedicaoSerializer(serializers.ModelSerializer):
+    servico = serializers.CharField(
+        source='servico_unidade.servico.titulo', read_only=True)
+    andar = serializers.CharField(
+        source='servico_unidade.unidade.andar.nome', read_only=True)
+    unidade = serializers.CharField(
+        source='servico_unidade.unidade.nome_ou_numero', read_only=True)
 
     class Meta:
         model = ItemMedicao
-        fields = ['id', 'colaborador', 'servico_unidade', 'quantidade_feita',
+        fields = ['id', 'colaborador', 'servico_unidade', 'servico', 'andar', 'unidade', 'quantidade_feita',
                   'valor_unitario', 'valor_total']
         read_only_fields = ['valor_total']
 
 
 class MedicaoColaboradorSerializer(serializers.ModelSerializer):
     itens = ItemMedicaoSerializer(many=True, read_only=True)
+    colaborador_name = serializers.CharField(
+        source='colaborador.nome', read_only=True)
+    valor_total = serializers.SerializerMethodField()
 
     class Meta:
         model = MedicaoColaborador
-        fields = ['id', 'colaborador', 'medicao', 'itens']
+        fields = ['id', 'colaborador', 'colaborador_name',
+                  'medicao', 'valor_total', 'itens']
 
+    def get_valor_total(self, obj):
+        total = 0
+        for item in obj.itens.all():
+            total += item.valor_total
+        return total
 
 # Serializer Principal para a Medição
+
 
 class MedicaoSerializer(serializers.ModelSerializer):
     # Campos de relacionamento para aninhar a exibição de dados
     colaboradores_associados = MedicaoColaboradorSerializer(
         many=True, read_only=True)
+    str = serializers.SerializerMethodField()
 
     class Meta:
         model = Medicao
-        fields = ['id', 'obra', 'data_medicao', 'data_pagamento',
+        fields = ['id', 'obra', 'str', 'data_medicao', 'data_pagamento',
                   'colaboradores_associados', ]
 
-    def create(self, validated_data):
-        # Este método será usado para criar a medição e seus itens/colaboradores
-        # ... lógica de criação aqui ...
-        # Se você estiver usando ViewSets e rotas padrão,
-        # o DRF cuidará da maioria das operações.
-        return Medicao.objects.create(**validated_data)
+    def get_str(self, obj):
+        data_med = obj.data_medicao
+        data_pag = obj.data_pagamento
+
+        resp = f'Medição {data_med.month:02}/{data_med.year} - Pagamento {data_pag.day:02}/{data_pag.month:02}/{data_pag.year} - Obra {obj.obra.nome}'
+        return resp
