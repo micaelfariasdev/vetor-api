@@ -8,6 +8,8 @@ from datetime import datetime, time, timedelta, date
 import locale
 import calendar
 import io
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 
@@ -36,6 +38,8 @@ class ColaboradorApiViewSet(ModelViewSet):
     serializer_class = ColaboradorSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = '__all__'
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     @action(detail=True, methods=["get"], url_path=r"pontos/(?P<mes>\d+)")
     def colaborador_pontos(self, request, pk=None, mes=None):

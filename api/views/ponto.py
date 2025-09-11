@@ -10,6 +10,8 @@ from itertools import groupby
 from operator import itemgetter
 from django.http import HttpResponse
 import requests
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class PontoApiViewSet(ModelViewSet):
@@ -17,6 +19,8 @@ class PontoApiViewSet(ModelViewSet):
     serializer_class = PontoSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['colaborador']
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     @action(detail=False, methods=["post"], url_path="salvar-registros")
     def salvar_registros(self, request):

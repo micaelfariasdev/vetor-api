@@ -9,6 +9,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
+from engenharia import models as tb
+
 # -------------------
 # Registro de usuário
 # -------------------
@@ -71,9 +73,9 @@ class CookieTokenRefreshView(TokenRefreshView):
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
+    serializer_class = RegisterSerializer
 
     def get(self, request):
-
         user = request.user
         return Response({
             "id": user.id,
@@ -83,10 +85,45 @@ class MeView(APIView):
             "last_name": user.last_name,
         })
 
+    def post(self, request):
+        user = request.user
+        dados = request.data
+
+        userEdit = User.objects.get(pk=user.id)
+        serializer = self.serializer_class(
+            userEdit, data=dados, partial=True)
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({
+            "id": userEdit.id,
+            "username": userEdit.username,
+            "email": userEdit.email,
+            "first_name": userEdit.first_name,
+            "last_name": userEdit.last_name,
+        })
+
+
+class InfoView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request):
+        data = {}
+        obras = tb.Obras.objects.count()
+        funcionarios = tb.Colaborador.objects.count()
+
+        data['obras'] = {'label': 'Obras', 'count': obras}
+        data['funcionarios'] = {'label': 'Funcionários', 'count': funcionarios}
+
+        return Response(data)
 
 # -------------------
 # Logout
 # -------------------
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class LogoutView(APIView):
     authentication_classes = [JWTAuthentication]  # Adicione esta linha

@@ -10,11 +10,15 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from datetime import datetime
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class CronogramasApiViewSet(ModelViewSet):
     queryset = Cronograma.objects.all()
     serializer_class = CronogramaSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 
 class ServicosCronogramasApiViewSet(ModelViewSet):
@@ -22,10 +26,14 @@ class ServicosCronogramasApiViewSet(ModelViewSet):
     serializer_class = ServicoCronogramaSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['cronograma']
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 
 class XMLToCronograma(APIView):
     serializer_class = ServicoCronogramaSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):

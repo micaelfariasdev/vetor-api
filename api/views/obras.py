@@ -4,11 +4,15 @@ from ..serializer import ObrasSerializer, ServicosSerializer, ServicosUnidadeSer
 from engenharia.models import Obras, Servicos, ServicoUnidade, Unidade, Andar
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class ObrasApiViewSet(ModelViewSet):
     queryset = Obras.objects.all()
     serializer_class = ObrasSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -45,16 +49,22 @@ class ObrasApiViewSet(ModelViewSet):
 class ServicosApiViewSet(ModelViewSet):
     queryset = Servicos.objects.all()
     serializer_class = ServicosSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 
 class UnidadeApiViewSet(ModelViewSet):
     queryset = Unidade.objects.all()
     serializer_class = UnidadeSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
 
 class ServicosUnidadeApiViewSet(ModelViewSet):
     queryset = ServicoUnidade.objects.all()
     serializer_class = ServicosUnidadeSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     @action(detail=False, methods=["post"], url_path="salvar-servicos")
     def salvar_servicos(self, request):
@@ -98,3 +108,5 @@ class ServicosUnidadeApiViewSet(ModelViewSet):
 class AndarApiViewSet(ModelViewSet):
     queryset = Andar.objects.all()
     serializer_class = AndarSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]

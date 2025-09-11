@@ -7,11 +7,15 @@ from rest_framework.views import APIView
 from datetime import datetime
 import pandas as pd
 import numpy as np
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class DespesasMesApiViewSet(ModelViewSet):
     queryset = DespesasMes.objects.all()
     serializer_class = DespesasMesSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
@@ -27,6 +31,8 @@ class DespesasMesApiViewSet(ModelViewSet):
 class DespesasItemApiViewSet(ModelViewSet):
     queryset = DespesasItem.objects.all()
     serializer_class = DespesasItemSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def partial_update(self, request, *args, **kwargs):
         despesas_mes = request.POST.get('Object')
@@ -45,6 +51,8 @@ class DespesasItemApiViewSet(ModelViewSet):
 
 class ExcelToItensDespesas(APIView):
     serializer_class = DespesasItemSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def post(self, request, *args, **kwargs):
         despesas_mes = request.POST.get('Object')
