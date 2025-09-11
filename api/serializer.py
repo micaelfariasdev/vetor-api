@@ -176,14 +176,15 @@ class MedicaoColaboradorSerializer(serializers.ModelSerializer):
 
 class MedicaoSerializer(serializers.ModelSerializer):
     # Campos de relacionamento para aninhar a exibição de dados
-    colaboradores_associados = MedicaoColaboradorSerializer(
+    colaboradores = MedicaoColaboradorSerializer(
         many=True, read_only=True)
     str = serializers.SerializerMethodField()
+    valor_total = serializers.SerializerMethodField()
 
     class Meta:
         model = Medicao
         fields = ['id', 'obra', 'str', 'data_medicao', 'data_pagamento',
-                  'colaboradores_associados', ]
+                  'colaboradores', ]
 
     def get_str(self, obj):
         if not obj.data_medicao or not obj.data_pagamento:
@@ -193,3 +194,9 @@ class MedicaoSerializer(serializers.ModelSerializer):
 
         resp = f'Medição {data_med.month:02}/{data_med.year} - Pagamento {data_pag.day:02}/{data_pag.month:02}/{data_pag.year} - Obra {obj.obra.nome}'
         return resp
+    
+    def get_valor_total(self, obj):
+        total = 0
+        for colaborador in obj.colaboradores.all():
+            total += colaborador.valor_total
+        return total
