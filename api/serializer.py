@@ -2,6 +2,7 @@ from datetime import datetime
 from rest_framework import serializers
 from engenharia.models import *
 from django.contrib.auth.models import User
+from decimal import Decimal
 
 
 class DespesasMesSerializer(serializers.ModelSerializer):
@@ -176,7 +177,7 @@ class MedicaoColaboradorSerializer(serializers.ModelSerializer):
 
 class MedicaoSerializer(serializers.ModelSerializer):
     # Campos de relacionamento para aninhar a exibição de dados
-    colaboradores = MedicaoColaboradorSerializer(
+    colaboradores_associados = MedicaoColaboradorSerializer(
         many=True, read_only=True)
     str = serializers.SerializerMethodField()
     valor_total = serializers.SerializerMethodField()
@@ -184,7 +185,7 @@ class MedicaoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medicao
         fields = ['id', 'obra', 'str', 'data_medicao', 'data_pagamento',
-                  'valor_total', 'colaboradores', ]
+                  'valor_total', 'colaboradores_associados', ]
 
     def get_str(self, obj):
         if not obj.data_medicao or not obj.data_pagamento:
@@ -196,7 +197,7 @@ class MedicaoSerializer(serializers.ModelSerializer):
         return resp
 
     def get_valor_total(self, obj):
-        total = 0
-        for colaborador in obj.colaboradores.all():
-            total += colaborador.valor_total
-        return total
+        colaboradores = MedicaoColaboradorSerializer(
+            obj.colaboradores_associados.all(), many=True
+        )
+        return sum(Decimal(c['valor_total']) for c in colaboradores.data)
