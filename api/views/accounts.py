@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from rest_framework import status
 
 from engenharia import models as tb
 
@@ -89,20 +90,30 @@ class MeView(APIView):
         user = request.user
         dados = request.data
 
-        userEdit = User.objects.get(pk=user.id)
-        serializer = self.serializer_class(
-            userEdit, data=dados, partial=True)
+        try:
+            userEdit = User.objects.get(pk=user.id)
+        except User.DoesNotExist:
+            return Response(
+                {"error": "Usuário não encontrado."},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer = self.serializer_class(userEdit, data=dados, partial=True)
 
-        return Response({
-            "id": userEdit.id,
-            "username": userEdit.username,
-            "email": userEdit.email,
-            "first_name": userEdit.first_name,
-            "last_name": userEdit.last_name,
-        })
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "id": userEdit.id,
+                "username": userEdit.username,
+                "email": userEdit.email,
+                "first_name": userEdit.first_name,
+                "last_name": userEdit.last_name,
+            })
+        else:
+            return Response(
+                {"errors": serializer.errors},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class InfoView(APIView):
