@@ -86,7 +86,7 @@ class MeView(APIView):
             "last_name": user.last_name,
         })
 
-    def post(self, request):
+    def patch(self, request):
         dados = request.data
 
         try:
