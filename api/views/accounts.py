@@ -101,14 +101,20 @@ class MeView(APIView):
         serializer = self.serializer_class(userEdit, data=dados, partial=True)
 
         if serializer.is_valid():
-            serializer.save()
-            return Response({
-                "id": userEdit.id,
-                "username": userEdit.username,
-                "email": userEdit.email,
-                "first_name": userEdit.first_name,
-                "last_name": userEdit.last_name,
-            })
+            if serializer.has_changed:
+                serializer.save()
+                return Response({
+                    "id": userEdit.id,
+                    "username": userEdit.username,
+                    "email": userEdit.email,
+                    "first_name": userEdit.first_name,
+                    "last_name": userEdit.last_name,
+                    "message": "Usuário atualizado com sucesso."
+                })
+            else:
+                return Response({
+                    "message": "Nenhuma alteração detectada."
+                }, status=status.HTTP_200_OK)
         else:
             return Response(
                 {"errors": serializer.errors},
