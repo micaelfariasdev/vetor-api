@@ -186,6 +186,8 @@ class MedicaoSerializer(serializers.ModelSerializer):
                   'colaboradores_associados', ]
 
     def get_str(self, obj):
+        if not obj.data_medicao or not obj.data_pagamento:
+            return f'Medição da  Obra {obj.obra.nome}'
         data_med = obj.data_medicao
         data_pag = obj.data_pagamento
 
