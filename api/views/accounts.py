@@ -87,34 +87,29 @@ class MeView(APIView):
         })
 
     def post(self, request):
-        user = request.user
         dados = request.data
 
         try:
-            userEdit = User.objects.get(pk=user.id)
+            user = request.user
         except User.DoesNotExist:
             return Response(
                 {"error": "Usuário não encontrado."},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        serializer = self.serializer_class(userEdit, data=dados, partial=True)
+        serializer = self.serializer_class(user, data=dados, partial=True)
 
         if serializer.is_valid():
-            if serializer.has_changed:
-                serializer.save()
-                return Response({
-                    "id": userEdit.id,
-                    "username": userEdit.username,
-                    "email": userEdit.email,
-                    "first_name": userEdit.first_name,
-                    "last_name": userEdit.last_name,
-                    "message": "Usuário atualizado com sucesso."
-                })
-            else:
-                return Response({
-                    "message": "Nenhuma alteração detectada."
-                }, status=status.HTTP_200_OK)
+            serializer.save()
+            return Response({
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "message": "Usuário atualizado com sucesso."
+            })
+
         else:
             return Response(
                 {"errors": serializer.errors},
