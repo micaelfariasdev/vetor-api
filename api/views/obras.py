@@ -14,6 +14,16 @@ class ObrasApiViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @action(detail=True, methods=["patch"], url_path="add-servicos")
+    def add_servicos(self, request):
+        obra = self.get_object()
+        servico_id = request.data.get("servico_id")
+        if servico_id:
+            obra.servicos.add(servico_id)
+            obra.save()
+            return Response({"status": "serviço adicionado"})
+        return Response({"error": "servico_id não enviado"}, status=400)
+
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
 
