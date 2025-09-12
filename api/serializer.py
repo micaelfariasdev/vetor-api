@@ -98,9 +98,16 @@ class AndarSerializer(serializers.ModelSerializer):
         model = Andar
         fields = '__all__'
 
+class ServicosObraSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Servicos
+        fields = '__all__'
+
+
 
 class ObrasSerializer(serializers.ModelSerializer):
-    servicos = ServicosSerializer(many=True, read_only=True)
+    servicos = ServicosObraSerializer(many=True, read_only=True)
     unidades = serializers.SerializerMethodField()
     andares = serializers.SerializerMethodField()
 
@@ -117,6 +124,13 @@ class ObrasSerializer(serializers.ModelSerializer):
         if obj.tipo_obra == 'PREDIO':
             return AndarSerializer(obj.andares.all(), many=True).data
         return []
+    
+class ServicosSerializer(serializers.ModelSerializer):
+    obras = ObrasSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Servicos
+        fields = '__all__'
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -197,9 +211,3 @@ class MedicaoSerializer(serializers.ModelSerializer):
         )
         return sum(Decimal(c['valor_total']) for c in colaboradores.data)
 
-class ServicosSerializer(serializers.ModelSerializer):
-    obras = ObrasSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Servicos
-        fields = '__all__'
