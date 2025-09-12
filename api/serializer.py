@@ -33,6 +33,7 @@ class DespesasItemSerializer(serializers.ModelSerializer):
 
 
 class ServicosSerializer(serializers.ModelSerializer):
+    obras = serializers.StringRelatedField(source='obras', read_only=True)
 
     class Meta:
         model = Servicos
