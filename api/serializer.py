@@ -126,7 +126,7 @@ class ObrasSerializer(serializers.ModelSerializer):
         return []
     
 class ServicosSerializer(serializers.ModelSerializer):
-    obras = ObrasSerializer(many=True, read_only=True)
+    obras = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Servicos
