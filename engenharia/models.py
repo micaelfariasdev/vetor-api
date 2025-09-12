@@ -326,8 +326,8 @@ class ItemMedicao(models.Model):
         on_delete=models.CASCADE,
         related_name='itens'
     )
-    servico_unidade = models.ForeignKey(
-        ServicoUnidade,
+    servico = models.ForeignKey(
+        Servicos,
         on_delete=models.CASCADE,
         related_name='itens_medicao'
     )
@@ -353,6 +353,7 @@ class ItemMedicao(models.Model):
         help_text="Unidade de medida do serviço (ex: m², m³, un)"
     )
     descricao = models.TextField(
+        max_length=350,
         blank=True,
         null=True,
         help_text="Descrição adicional do item de medição"

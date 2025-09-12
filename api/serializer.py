@@ -143,16 +143,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class ItemMedicaoSerializer(serializers.ModelSerializer):
-    servico = serializers.CharField(
-        source='servico_unidade.servico.titulo', read_only=True)
-    andar = serializers.CharField(
-        source='servico_unidade.unidade.andar.nome', read_only=True)
-    unidade = serializers.CharField(
-        source='servico_unidade.unidade.nome_ou_numero', read_only=True)
+    servico_nome = serializers.CharField(
+        source='servico.titulo', read_only=True)
+   
 
     class Meta:
         model = ItemMedicao
-        fields = ['id', 'colaborador', 'servico_unidade', 'servico', 'andar', 'unidade', 'quantidade_feita',
+        fields = ['id', 'colaborador', 'descricao','servico_nome' , 'servico', 'servico', 'quantidade_feita',
                   'valor_unitario', 'valor_total']
         read_only_fields = ['valor_total']
 
