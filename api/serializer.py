@@ -32,12 +32,7 @@ class DespesasItemSerializer(serializers.ModelSerializer):
                   'titulo', 'empresa', 'valor', 'descricao']
 
 
-class ServicosSerializer(serializers.ModelSerializer):
-    obras = serializers.StringRelatedField(source='obras', read_only=True)
 
-    class Meta:
-        model = Servicos
-        fields = '__all__'
 
 
 class CronogramaSerializer(serializers.ModelSerializer):
@@ -201,3 +196,10 @@ class MedicaoSerializer(serializers.ModelSerializer):
             obj.colaboradores_associados.all(), many=True
         )
         return sum(Decimal(c['valor_total']) for c in colaboradores.data)
+
+class ServicosSerializer(serializers.ModelSerializer):
+    obras = ObrasSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Servicos
+        fields = '__all__'
