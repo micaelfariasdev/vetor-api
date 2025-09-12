@@ -9,21 +9,19 @@ from rest_framework.response import Response
 class MedicaoApiViewSet(ModelViewSet):
     queryset = MOD.Medicao.objects.all()
     serializer_class = SER.MedicaoSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
-
-
 
 
 class ItemMedicaoApiViewSet(ModelViewSet):
     queryset = MOD.ItemMedicao.objects.all()
     serializer_class = SER.ItemMedicaoSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
 
 class MedicaoColaboradorApiViewSet(ModelViewSet):
     queryset = MOD.MedicaoColaborador.objects.all()
     serializer_class = SER.MedicaoColaboradorSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
