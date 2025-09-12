@@ -87,6 +87,7 @@ class UnidadeSerializer(serializers.ModelSerializer):
 
 
 class ServicosUnidadeSerializer(serializers.ModelSerializer):
+    obra = serializers.CharField(source='unidade.obra', read_only=True)
 
     class Meta:
         model = ServicoUnidade
