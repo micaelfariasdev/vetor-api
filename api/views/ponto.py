@@ -1,17 +1,24 @@
-from rest_framework.decorators import api_view, action
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.viewsets import ModelViewSet
-from ..serializer import PontoSerializer, MesPontoSerializer
-from engenharia.models import Ponto, MesPonto, Colaborador
-from rest_framework.response import Response
+from django.http import HttpResponse
+
 from rest_framework import status
-from datetime import date, time
+from rest_framework.decorators import api_view, action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from django_filters.rest_framework import DjangoFilterBackend
+
+from engenharia.models import Ponto, MesPonto, Colaborador
+from ..serializer import PontoSerializer, MesPontoSerializer, ColaboradorSerializer
+
+from datetime import date, time, datetime, timedelta
 from itertools import groupby
 from operator import itemgetter
-from django.http import HttpResponse
+import locale
+import calendar
+import io
 import requests
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class PontoApiViewSet(ModelViewSet):
@@ -128,6 +135,47 @@ class MesPontoApiViewSet(ModelViewSet):
         return Response(data)
 
 
+def gerar_datas_no_intervalo(data_inicio, data_fim):
+    """
+    Gera uma lista de objetos date entre duas datas.
+
+    Args:
+        data_inicio (datetime.date): A data de início (inclusive).
+        data_fim (datetime.date): A data final (inclusive).
+
+    Returns:
+        list: Uma lista de objetos date.
+    """
+    lista_de_datas = []
+    data_atual = data_inicio
+
+    # Adiciona 1 dia por vez até chegar na data final
+    while data_atual <= data_fim:
+        lista_de_datas.append(data_atual)
+        data_atual += timedelta(days=1)
+
+    return lista_de_datas
+
+
+def formatar_semana(data_str):
+    data = data_str
+    dias_semana = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"]
+    dia_sigla = dias_semana[data.weekday()]
+    data_formatada = data.strftime("%d/%m/%Y")
+
+    return dia_sigla
+
+
+def formatar_horas(time):
+    total_segundos = time.total_seconds()
+    horas = int(total_segundos // 3600)
+    minutos = int((total_segundos % 3600) // 60)
+    # segundos = int(total_segundos % 60)
+
+    resultado = f"{horas:02d}:{minutos:02d}"
+    return resultado
+
+
 @api_view(['GET'])
 def pdf_pontos_relatorio(request, mes_id):
     """
@@ -143,60 +191,170 @@ def pdf_pontos_relatorio(request, mes_id):
             ini = date(int(mes_ponto.ano), int(mes_ponto.mes) - 1, 26)
             fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 25)
 
-        pontos = Ponto.objects.filter(
-            data__range=(ini, fim),
-            colaborador__obra=mes_ponto.obra
-        ).select_related("colaborador").order_by("colaborador__nome", "data")
-
-        data = list(
-            pontos.values(
-                "id",
-                "colaborador__id",
-                "colaborador__nome",
-                "colaborador__cargo",
-                "colaborador__obra__nome",
-                "data",
-                "feriado",
-                "ferias",
-                "falta",
-                "atestado",
-                "entrada_manha",
-                "saida_manha",
-                "entrada_tarde",
-                "saida_tarde",
-                "horas_trabalhadas",
-            )
-        )
+        colaboradores = mes_ponto.obra.colaboradores.all()
 
         resultado = []
-        for _, registros in groupby(data, key=itemgetter("colaborador__id")):
-            registros_list = list(registros)
-            resultado.append({
-                "colaborador": registros_list[0]['colaborador__nome'],
-                "cargo": registros_list[0]['colaborador__cargo'],
-                "obra": registros_list[0]['colaborador__obra__nome'],
-                "mes": int(mes_ponto.mes),
-                "ano": int(mes_ponto.ano),
-                "pontos": [
-                    {
-                        "data": str(r["data"]),
-                        "feriado": str(r["feriado"]),
-                        "falta": str(r["falta"]),
-                        "ferias": str(r["ferias"]),
-                        "atestado": str(r["atestado"]),
-                        "entrada_manha": str(r["entrada_manha"]) if not r["entrada_manha"] == None else None,
-                        "saida_manha": str(r["saida_manha"]) if not r["saida_manha"] == None else None,
-                        "entrada_tarde": str(r["entrada_tarde"]) if not r["entrada_tarde"] == None else None,
-                        "saida_tarde": str(r["saida_tarde"]) if not r["saida_tarde"] == None else None,
-                        "horas_trabalhadas": str(r["horas_trabalhadas"]),
-                    } for r in registros_list
-                ]
-            })
 
-        # pdf = requests.post(
-        #     'http://64.181.171.161/gerar-pdf', json=resultado)
+        for colaborador in colaboradores:
+            pontos_dic = {}
+            mes_completo = gerar_datas_no_intervalo(ini, fim)
+            for dia in mes_completo:
+                dia_semana = formatar_semana(dia)
+                dia = dia.isoformat()
+                pontos_dic[dia] = [dia_semana]
+            pontos = colaborador.pontos.filter(data__range=[ini, fim])
+            hr_falt = timedelta()
+            hr_ext = timedelta()
+            hr_fer = timedelta()
+            falta = 0
+            pontos = list(pontos.values())
+            registros_feriado = filter(
+                lambda registro: registro['feriado'] == True, pontos)
+            datas_feriado = [registro['data']
+                             for registro in registros_feriado]
+            for feriado in datas_feriado:
+                if formatar_semana(feriado) == "SÁB":
+                    data_inicio = feriado - timedelta(days=5)
+                    data_fim = feriado - timedelta(days=1)
+                    semana = list(
+                        filter(lambda r:
+                               data_inicio <= r['data'] <= data_fim, pontos))
+                    for s in semana:
+                        s['sem_feriado'] = True
 
-        # return HttpResponse(resultado, content_type="application/pdf")
+            for ponto in pontos:
+                dia_semana = formatar_semana(ponto['data'])
+                dataPonto = []
+                dataPonto.append(dia_semana)
+                dataPonto.append(ponto['entrada_manha'])
+                dataPonto.append(ponto['saida_manha'])
+                dataPonto.append(ponto['entrada_tarde'])
+                dataPonto.append(ponto['saida_tarde'])
+                dataPonto.append(ponto['horas_trabalhadas'])
+
+                if ponto['atestado'] == True or ponto['ferias'] == True:
+                    continue
+                elif ponto['falta'] == True and ponto['data'].month == mes_ponto.mes:
+                    falta += 1
+                    continue
+                elif ponto['falta'] == True:
+                    continue
+                else:
+                    h, m = ponto['horas_trabalhadas'].split(':')
+                    horas_trab = timedelta(hours=int(h), minutes=int(m))
+                    dif_hora = timedelta(hours=int(h), minutes=int(m))
+                    print(formatar_horas(horas_trab))
+
+                    if 'sem_feriado' in ponto:
+                        jornada_diaria = timedelta(hours=8)
+                        if horas_trab < jornada_diaria:
+                            hr_falt += jornada_diaria - horas_trab
+                            dif_hora = horas_trab - jornada_diaria
+                        elif horas_trab >= jornada_diaria:
+                            hr_ext += horas_trab - jornada_diaria
+                            dif_hora = horas_trab - jornada_diaria
+                    elif dia_semana == "DOM" or ponto['feriado'] == True:
+                        hr_fer += horas_trab
+                        dif_hora = horas_trab
+                    elif dia_semana not in ["SEX", "SÁB", "DOM"]:
+                        jornada_diaria = timedelta(hours=9)
+                        if horas_trab <= jornada_diaria:
+                            hr_falt += jornada_diaria - horas_trab
+                            dif_hora = horas_trab - jornada_diaria
+                        elif horas_trab > jornada_diaria:
+                            hr_ext += horas_trab - jornada_diaria
+                            dif_hora = horas_trab - jornada_diaria
+                    elif dia_semana == "SEX":
+                        jornada_diaria = timedelta(hours=8)
+                        if horas_trab <= jornada_diaria:
+                            hr_falt += jornada_diaria - horas_trab
+                            dif_hora = horas_trab - jornada_diaria
+                        elif horas_trab > jornada_diaria:
+                            hr_ext += horas_trab - jornada_diaria
+                            dif_hora = horas_trab - jornada_diaria
+                    elif dia_semana == "SÁB":
+                        hr_ext += horas_trab
+                        dif_hora = horas_trab
+                    print(formatar_horas(jornada_diaria))
+                    print(formatar_horas(dif_hora))
+                    dados = ColaboradorSerializer(colaborador).data
+                    dados['horas-faltando'] = formatar_horas(hr_falt)
+                    dados['horas-extras'] = formatar_horas(hr_ext)
+                    dados['horas-feriado-domingo'] = formatar_horas(hr_fer)
+                    dados['falta'] = falta
+                    ...
+
+                dataPonto.append(formatar_horas(dif_hora))
+                if ponto['feriado']:
+                    dataPonto.append('feriado')
+                if ponto['atestado']:
+                    dataPonto.append('atestado')
+                if ponto['falta']:
+                    dataPonto.append('falta')
+                if ponto['ferias']:
+                    dataPonto.append('ferias')
+                if 'sem_feriado' in ponto:
+                    dataPonto.append('sem_feriado')
+
+                data_str = ponto['data'].isoformat()
+                pontos_dic[data_str] = dataPonto
+            data = {
+                'dados': dados,
+                'pontos': pontos_dic
+            }
+            resultado.append(data)
+
+        
+
+        # data = list(
+        #     pontos.values(
+        #         "id",
+        #         "colaborador__id",
+        #         "colaborador__nome",
+        #         "colaborador__cargo",
+        #         "colaborador__obra__nome",
+        #         "data",
+        #         "feriado",
+        #         "ferias",
+        #         "falta",
+        #         "atestado",
+        #         "entrada_manha",
+        #         "saida_manha",
+        #         "entrada_tarde",
+        #         "saida_tarde",
+        #         "horas_trabalhadas",
+        #     )
+        # )
+
+        # resultado = []
+        # for _, registros in groupby(data, key=itemgetter("colaborador__id")):
+        #     registros_list = list(registros)
+        #     resultado.append({
+        #         "colaborador": registros_list[0]['colaborador__nome'],
+        #         "cargo": registros_list[0]['colaborador__cargo'],
+        #         "obra": registros_list[0]['colaborador__obra__nome'],
+        #         "mes": int(mes_ponto.mes),
+        #         "ano": int(mes_ponto.ano),
+        #         "pontos": [
+        #             {
+        #                 "data": str(r["data"]),
+        #                 "feriado": str(r["feriado"]),
+        #                 "falta": str(r["falta"]),
+        #                 "ferias": str(r["ferias"]),
+        #                 "atestado": str(r["atestado"]),
+        #                 "entrada_manha": str(r["entrada_manha"]) if not r["entrada_manha"] == None else None,
+        #                 "saida_manha": str(r["saida_manha"]) if not r["saida_manha"] == None else None,
+        #                 "entrada_tarde": str(r["entrada_tarde"]) if not r["entrada_tarde"] == None else None,
+        #                 "saida_tarde": str(r["saida_tarde"]) if not r["saida_tarde"] == None else None,
+        #                 "horas_trabalhadas": str(r["horas_trabalhadas"]),
+        #             } for r in registros_list
+        #         ]
+        #     })
+
+        pdf = requests.post(
+            'http://64.181.171.161/gerar-pdf', json=resultado)
+
+        return HttpResponse(resultado, content_type="application/pdf")
         return Response(resultado)
 
     except MesPonto.DoesNotExist:
