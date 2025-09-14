@@ -226,10 +226,10 @@ def pdf_pontos_relatorio(request, mes_id):
                 dia_semana = formatar_semana(ponto['data'])
                 dataPonto = []
                 dataPonto.append(dia_semana)
-                dataPonto.append(ponto['entrada_manha'])
-                dataPonto.append(ponto['saida_manha'])
-                dataPonto.append(ponto['entrada_tarde'])
-                dataPonto.append(ponto['saida_tarde'])
+                dataPonto.append(str(ponto['entrada_manha'])[:5])
+                dataPonto.append(str(ponto['saida_manha'])[:5])
+                dataPonto.append(str(ponto['entrada_tarde'])[:5])
+                dataPonto.append(str(ponto['saida_tarde'])[:5])
                 dataPonto.append(ponto['horas_trabalhadas'])
 
                 if ponto['atestado'] == True or ponto['ferias'] == True:
@@ -301,8 +301,6 @@ def pdf_pontos_relatorio(request, mes_id):
             }
             resultado.append(data)
 
-        
-
         # data = list(
         #     pontos.values(
         #         "id",
@@ -348,11 +346,10 @@ def pdf_pontos_relatorio(request, mes_id):
         #         ]
         #     })
 
-        # pdf = requests.post(
-        #     'http://64.181.171.161/gerar-pdf', json=resultado)
+        pdf = requests.post(
+            'http://64.181.171.161/gerar-pdf', json=resultado)
 
-        # return HttpResponse(pdf, content_type="application/pdf")
-        return Response(resultado)
+        return HttpResponse(pdf, content_type="application/pdf")
 
     except MesPonto.DoesNotExist:
         return HttpResponse("Mês de ponto não encontrado.", status=404)
