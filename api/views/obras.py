@@ -14,8 +14,8 @@ class ObrasApiViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
-    @action(detail=True, methods=["patch"], url_path="add-servicos")
-    def add_servicos(self, request):
+    @action(detail=True, methods=["post"], url_path="add-servicos")
+    def add_servicos(self, request, pk=None):
         obra = self.get_object()
         servico_id = request.data.get("servico_id")
         if servico_id:
