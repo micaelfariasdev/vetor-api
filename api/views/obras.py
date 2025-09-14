@@ -24,6 +24,15 @@ class ObrasApiViewSet(ModelViewSet):
             return Response({"status": "serviço adicionado"})
         return Response({"error": "servico_id não enviado"}, status=400)
 
+    @action(detail=True, methods=["delete"], url_path="remove-servicos")
+    def remove_servicos(self, request, pk=None):
+        obra = self.get_object()
+        servico_id = request.data.get("servico_id")
+        if servico_id:
+            obra.servicos.remove(servico_id)
+            return Response({"status": "serviço removido"})
+        return Response({"error": "servico_id não enviado"}, status=400)
+
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
 
