@@ -243,7 +243,6 @@ def pdf_pontos_relatorio(request, mes_id):
                     h, m = ponto['horas_trabalhadas'].split(':')
                     horas_trab = timedelta(hours=int(h), minutes=int(m))
                     dif_hora = timedelta(hours=int(h), minutes=int(m))
-                    print(formatar_horas(horas_trab))
 
                     if 'sem_feriado' in ponto:
                         jornada_diaria = timedelta(hours=8)
@@ -275,8 +274,6 @@ def pdf_pontos_relatorio(request, mes_id):
                     elif dia_semana == "SÁB":
                         hr_ext += horas_trab
                         dif_hora = horas_trab
-                    print(formatar_horas(jornada_diaria))
-                    print(formatar_horas(dif_hora))
                     dados = ColaboradorSerializer(colaborador).data
                     dados['horas-faltando'] = formatar_horas(hr_falt)
                     dados['horas-extras'] = formatar_horas(hr_ext)
