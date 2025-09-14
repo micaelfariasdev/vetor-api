@@ -279,6 +279,8 @@ def pdf_pontos_relatorio(request, mes_id):
                     dados['horas-extras'] = formatar_horas(hr_ext)
                     dados['horas-feriado-domingo'] = formatar_horas(hr_fer)
                     dados['falta'] = falta
+                    dados['mes'] = mes_ponto.mes
+                    dados['ano'] = mes_ponto.ano
                     ...
 
                 dataPonto.append(formatar_horas(dif_hora))
