@@ -193,10 +193,11 @@ def pdf_pontos_relatorio(request, mes_id):
                 ]
             })
 
-        pdf = requests.post(
-            'http://64.181.171.161/gerar-pdf', json=resultado)
+        # pdf = requests.post(
+        #     'http://64.181.171.161/gerar-pdf', json=resultado)
 
-        return HttpResponse(pdf, content_type="application/pdf")
+        # return HttpResponse(resultado, content_type="application/pdf")
+        return Response(resultado)
 
     except MesPonto.DoesNotExist:
         return HttpResponse("Mês de ponto não encontrado.", status=404)
