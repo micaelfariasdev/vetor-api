@@ -351,10 +351,10 @@ def pdf_pontos_relatorio(request, mes_id):
         #         ]
         #     })
 
-        pdf = requests.post(
-            'http://64.181.171.161/gerar-pdf', json=resultado)
+        # pdf = requests.post(
+        #     'http://64.181.171.161/gerar-pdf', json=resultado)
 
-        return HttpResponse(pdf, content_type="application/pdf")
+        # return HttpResponse(pdf, content_type="application/pdf")
         return Response(resultado)
 
     except MesPonto.DoesNotExist:
