@@ -177,7 +177,7 @@ def formatar_horas(time):
 
 
 @api_view(['GET'])
-def pdf_pontos_relatorio(request, mes_id):
+def pdf_pontos_relatorio(request, mes_id, col=None):
     """
     Gera um relatório em PDF com os pontos de todos os colaboradores
     de um mês e obra específicos.
@@ -191,11 +191,9 @@ def pdf_pontos_relatorio(request, mes_id):
             ini = date(int(mes_ponto.ano), int(mes_ponto.mes) - 1, 26)
             fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 25)
 
-        colaboradores = mes_ponto.obra.colaboradores.all()
-
         resultado = []
-
-        for colaborador in colaboradores:
+        if col:
+            colaborador = mes_ponto.obra.colaboradores.get(id=col)
             pontos_dic = {}
             mes_completo = gerar_datas_no_intervalo(ini, fim)
             for dia in mes_completo:
@@ -303,6 +301,117 @@ def pdf_pontos_relatorio(request, mes_id):
             }
             resultado.append(data)
 
+        else:
+            colaboradores = mes_ponto.obra.colaboradores.all()
+
+            for colaborador in colaboradores:
+                pontos_dic = {}
+                mes_completo = gerar_datas_no_intervalo(ini, fim)
+                for dia in mes_completo:
+                    dia_semana = formatar_semana(dia)
+                    dia = dia.isoformat()
+                    pontos_dic[dia] = [dia_semana]
+                pontos = colaborador.pontos.filter(data__range=[ini, fim])
+                hr_falt = timedelta()
+                hr_ext = timedelta()
+                hr_fer = timedelta()
+                falta = 0
+                pontos = list(pontos.values())
+                registros_feriado = filter(
+                    lambda registro: registro['feriado'] == True, pontos)
+                datas_feriado = [registro['data']
+                                 for registro in registros_feriado]
+                for feriado in datas_feriado:
+                    if formatar_semana(feriado) == "SÁB":
+                        data_inicio = feriado - timedelta(days=5)
+                        data_fim = feriado - timedelta(days=1)
+                        semana = list(
+                            filter(lambda r:
+                                   data_inicio <= r['data'] <= data_fim, pontos))
+                        for s in semana:
+                            s['sem_feriado'] = True
+
+                for ponto in pontos:
+                    dia_semana = formatar_semana(ponto['data'])
+                    dataPonto = []
+                    dataPonto.append(dia_semana)
+                    dataPonto.append(str(ponto['entrada_manha'])[:5])
+                    dataPonto.append(str(ponto['saida_manha'])[:5])
+                    dataPonto.append(str(ponto['entrada_tarde'])[:5])
+                    dataPonto.append(str(ponto['saida_tarde'])[:5])
+                    dataPonto.append(ponto['horas_trabalhadas'])
+
+                    if ponto['atestado'] == True or ponto['ferias'] == True:
+                        continue
+                    elif ponto['falta'] == True and ponto['data'].month == mes_ponto.mes:
+                        falta += 1
+                        continue
+                    elif ponto['falta'] == True:
+                        continue
+                    else:
+                        h, m = ponto['horas_trabalhadas'].split(':')
+                        horas_trab = timedelta(hours=int(h), minutes=int(m))
+                        dif_hora = timedelta(hours=int(h), minutes=int(m))
+
+                        if 'sem_feriado' in ponto:
+                            jornada_diaria = timedelta(hours=8)
+                            if horas_trab < jornada_diaria:
+                                hr_falt += jornada_diaria - horas_trab
+                                dif_hora = horas_trab - jornada_diaria
+                            elif horas_trab >= jornada_diaria:
+                                hr_ext += horas_trab - jornada_diaria
+                                dif_hora = horas_trab - jornada_diaria
+                        elif dia_semana == "DOM" or ponto['feriado'] == True:
+                            hr_fer += horas_trab
+                            dif_hora = horas_trab
+                        elif dia_semana not in ["SEX", "SÁB", "DOM"]:
+                            jornada_diaria = timedelta(hours=9)
+                            if horas_trab <= jornada_diaria:
+                                hr_falt += jornada_diaria - horas_trab
+                                dif_hora = horas_trab - jornada_diaria
+                            elif horas_trab > jornada_diaria:
+                                hr_ext += horas_trab - jornada_diaria
+                                dif_hora = horas_trab - jornada_diaria
+                        elif dia_semana == "SEX":
+                            jornada_diaria = timedelta(hours=8)
+                            if horas_trab <= jornada_diaria:
+                                hr_falt += jornada_diaria - horas_trab
+                                dif_hora = horas_trab - jornada_diaria
+                            elif horas_trab > jornada_diaria:
+                                hr_ext += horas_trab - jornada_diaria
+                                dif_hora = horas_trab - jornada_diaria
+                        elif dia_semana == "SÁB":
+                            hr_ext += horas_trab
+                            dif_hora = horas_trab
+                        dados = ColaboradorSerializer(colaborador).data
+                        dados['horas-faltando'] = formatar_horas(hr_falt)
+                        dados['horas-extras'] = formatar_horas(hr_ext)
+                        dados['horas-feriado-domingo'] = formatar_horas(hr_fer)
+                        dados['falta'] = falta
+                        dados['mes'] = mes_ponto.mes
+                        dados['ano'] = mes_ponto.ano
+                        ...
+
+                    dataPonto.append(formatar_horas(dif_hora))
+                    if ponto['feriado']:
+                        dataPonto.append('feriado')
+                    if ponto['atestado']:
+                        dataPonto.append('atestado')
+                    if ponto['falta']:
+                        dataPonto.append('falta')
+                    if ponto['ferias']:
+                        dataPonto.append('ferias')
+                    if 'sem_feriado' in ponto:
+                        dataPonto.append('sem_feriado')
+
+                    data_str = ponto['data'].isoformat()
+                    pontos_dic[data_str] = dataPonto
+                data = {
+                    'dados': dados,
+                    'pontos': pontos_dic
+                }
+                resultado.append(data)
+
         # data = list(
         #     pontos.values(
         #         "id",
@@ -357,3 +466,19 @@ def pdf_pontos_relatorio(request, mes_id):
         return HttpResponse("Mês de ponto não encontrado.", status=404)
     except Exception as e:
         return HttpResponse(f"Erro ao gerar o PDF: {str(e)}", status=500)
+
+
+@api_view(['GET'])
+def proxy_download_zip(request, ano, mes):
+    url_externa = f'https://64.181.171.161/pontos/{ano}/{mes}/zip'
+
+    resposta = requests.get(url_externa, stream=True)
+    resposta.raise_for_status()
+
+    # Define os cabeçalhos para o download do arquivo
+    nome_do_arquivo = f'pontos_{ano}_{mes}.zip'
+    response = HttpResponse(
+        resposta.content, content_type='application/zip')
+    response['Content-Disposition'] = f'attachment; filename="{nome_do_arquivo}"'
+
+    return response

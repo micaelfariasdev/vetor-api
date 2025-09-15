@@ -47,6 +47,8 @@ urlpatterns += [
          views.recalcular_cronograma),
     path('ponto/pdf/<int:mes_id>/',
          views.pdf_pontos_relatorio),
+    path('ponto/pdf/<int:mes_id>/<int:col>/',
+         views.pdf_pontos_relatorio),
     path("register/", views.RegisterView.as_view(), name="register"),
     path("token/", views.CookieTokenObtainPairView.as_view(),
          name="token_obtain_pair"),
@@ -55,4 +57,6 @@ urlpatterns += [
     path("me/", views.MeView.as_view(), name="me"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
     path("infos/", views.InfoView.as_view(), name="info"),
+    path("pontos/<int:ano>/<int:mes>/zip",
+         views.proxy_download_zip, name="pdf"),
 ]
