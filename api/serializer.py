@@ -176,7 +176,7 @@ class MedicaoColaboradorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MedicaoColaborador
-        fields = ['id', 'colaborador', 'colaborador_name', 'colaboradorSituacao', 'colaboradorDados'.
+        fields = ['id', 'colaborador', 'colaborador_name', 'colaboradorSituacao', 'colaboradorDados',
                   'medicao', 'valor_total', 'itens']
 
     def get_valor_total(self, obj):
