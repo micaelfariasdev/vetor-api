@@ -168,11 +168,13 @@ class MedicaoColaboradorSerializer(serializers.ModelSerializer):
     itens = ItemMedicaoSerializer(many=True, read_only=True)
     colaborador_name = serializers.CharField(
         source='colaborador.nome', read_only=True)
+    colaboradorSituacao = serializers.CharField(
+        source='colaborador.situacao', read_only=True)
     valor_total = serializers.SerializerMethodField()
 
     class Meta:
         model = MedicaoColaborador
-        fields = ['id', 'colaborador', 'colaborador_name',
+        fields = ['id', 'colaborador', 'colaborador_name', 'colaboradorSituacao',
                   'medicao', 'valor_total', 'itens']
 
     def get_valor_total(self, obj):
