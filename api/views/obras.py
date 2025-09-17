@@ -89,18 +89,16 @@ class ServicosUnidadeApiViewSet(ModelViewSet):
     def get_servicos(self, request):
         data = request.data
         
-        servico_id = data.get('servico_id')
         unidade_id = data.get('unidade_id')
 
-        if not servico_id or not unidade_id:
+        if not  unidade_id:
             return Response(
-                {"detail": "Os IDs de serviço e de unidade são obrigatórios."},
+                {"detail": "O ID de unidade é obrigatórios."},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         try:
             servicos_unidade = ServicoUnidade.objects.filter(
-                servico_id=servico_id,
                 unidade_id=unidade_id
             )
             
