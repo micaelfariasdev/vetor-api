@@ -85,6 +85,35 @@ class ServicosUnidadeApiViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
+    @action(detail=False, methods=["post"], url_path="get-servicos")
+    def get_servicos(self, request):
+        data = request.data
+        
+        servico_id = data.get('servico_id')
+        unidade_id = data.get('unidade_id')
+
+        if not servico_id or not unidade_id:
+            return Response(
+                {"detail": "Os IDs de serviço e de unidade são obrigatórios."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            servicos_unidade = ServicoUnidade.objects.filter(
+                servico_id=servico_id,
+                unidade_id=unidade_id
+            )
+            
+            serializer = self.get_serializer(servicos_unidade, many=True)
+            
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"detail": f"Ocorreu um erro ao processar a requisição: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+             
     @action(detail=False, methods=["post"], url_path="salvar-servicos")
     def salvar_servicos(self, request):
         data = request.data
