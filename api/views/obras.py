@@ -77,18 +77,15 @@ class ObrasApiViewSet(ModelViewSet):
         )
         servicos_unidades_data = serializerservicosUnidades.data
 
-        # --- CORREÇÃO 1: Mapear lista de serviços por unidade ---
         servicos_mapa = {}
         for item in servicos_unidades_data:
             unidade_id = item["unidade"]
-            servico_nome = item["Servico_nome"]
+            servico_nome = item["servico"]
             progresso = item["progresso"]
 
-            # Se a unidade_id ainda não estiver no mapa, inicializa como uma lista
             if unidade_id not in servicos_mapa:
                 servicos_mapa[unidade_id] = []
 
-            # Adiciona o dicionário de serviço/progresso à lista da unidade
             servicos_mapa[unidade_id].append(
                 {
                     "servico": servico_nome,
@@ -96,24 +93,19 @@ class ObrasApiViewSet(ModelViewSet):
                 }
             )
 
-        # Obter a estrutura de andares/unidades
         serializer_instance = self.get_serializer(instance)
         dic = serializer_instance.data
 
-        # --- CORREÇÃO 2: Inserir a lista completa de serviços na unidade ---
         for andar in dic["andares"]:
-            # Presumo que 'andar' também seja um dicionário com uma chave 'unidades'
             if 'unidades' not in andar:
-                continue # Pula se a estrutura do andar estiver errada
+                continue 
 
             for unidade in andar["unidades"]:
                 unidade_id = unidade["id"]
 
-                # Inicializa a chave 'servicos' para que ela sempre exista, mesmo vazia
                 unidade["servicos"] = []
 
                 if unidade_id in servicos_mapa:
-                    # Adiciona a LISTA COMPLETA de serviços mapeados à chave 'servicos' da unidade
                     unidade["servicos"] = servicos_mapa[unidade_id]
 
         return Response(dic)
