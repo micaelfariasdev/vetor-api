@@ -67,33 +67,54 @@ class ObrasApiViewSet(ModelViewSet):
     @action(detail=True, methods=["GET"], url_path="servicos")
     def servicos(self, request, pk=None):
         instance = self.get_object()
-        
-        servicosUnidades_queryset = ServicoUnidade.objects.filter(unidade__obra=instance)
-        
-        serializerservicosUnidades = ServicosUnidadeSerializer(servicosUnidades_queryset, many=True)
+
+        servicosUnidades_queryset = ServicoUnidade.objects.filter(
+            unidade__obra=instance
+        )
+
+        serializerservicosUnidades = ServicosUnidadeSerializer(
+            servicosUnidades_queryset, many=True
+        )
         servicos_unidades_data = serializerservicosUnidades.data
-        
-        
+
+        # --- CORREÇÃO 1: Mapear lista de serviços por unidade ---
         servicos_mapa = {}
         for item in servicos_unidades_data:
-            unidade_id = item['unidade'] 
-            servico_nome = item['Servico_nome']
-            progresso = item['progresso']
-            
-            if unidade_id not in servicos_mapa:
-                servicos_mapa[unidade_id] = {}
-                
-            servicos_mapa[unidade_id][servico_nome] = progresso
+            unidade_id = item["unidade"]
+            servico_nome = item["Servico_nome"]
+            progresso = item["progresso"]
 
+            # Se a unidade_id ainda não estiver no mapa, inicializa como uma lista
+            if unidade_id not in servicos_mapa:
+                servicos_mapa[unidade_id] = []
+
+            # Adiciona o dicionário de serviço/progresso à lista da unidade
+            servicos_mapa[unidade_id].append(
+                {
+                    "servico": servico_nome,
+                    "progresso": progresso,
+                }
+            )
+
+        # Obter a estrutura de andares/unidades
         serializer_instance = self.get_serializer(instance)
-        dic = serializer_instance.data 
-        
-        for andar in dic['andares']:
-            for unidade in andar['unidades']: 
-                unidade_id = unidade['id']
-                
+        dic = serializer_instance.data
+
+        # --- CORREÇÃO 2: Inserir a lista completa de serviços na unidade ---
+        for andar in dic["andares"]:
+            # Presumo que 'andar' também seja um dicionário com uma chave 'unidades'
+            if 'unidades' not in andar:
+                continue # Pula se a estrutura do andar estiver errada
+
+            for unidade in andar["unidades"]:
+                unidade_id = unidade["id"]
+
+                # Inicializa a chave 'servicos' para que ela sempre exista, mesmo vazia
+                unidade["servicos"] = []
+
                 if unidade_id in servicos_mapa:
-                    unidade.update(servicos_mapa[unidade_id])
+                    # Adiciona a LISTA COMPLETA de serviços mapeados à chave 'servicos' da unidade
+                    unidade["servicos"] = servicos_mapa[unidade_id]
 
         return Response(dic)
 
@@ -120,22 +141,22 @@ class ServicosUnidadeApiViewSet(ModelViewSet):
     @action(detail=False, methods=["post"], url_path="get-servicos")
     def get_servicos(self, request):
         data = request.data
-        
+
         unidade_id = data.get('unidade_id')
 
-        if not  unidade_id:
+        if not unidade_id:
             return Response(
                 {"detail": "O ID de unidade é obrigatórios."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         try:
             servicos_unidade = ServicoUnidade.objects.filter(
                 unidade_id=unidade_id
             )
-            
+
             serializer = self.get_serializer(servicos_unidade, many=True)
-            
+
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as e:
@@ -143,7 +164,7 @@ class ServicosUnidadeApiViewSet(ModelViewSet):
                 {"detail": f"Ocorreu um erro ao processar a requisição: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-             
+
     @action(detail=False, methods=["post"], url_path="salvar-servicos")
     def salvar_servicos(self, request):
         data = request.data
