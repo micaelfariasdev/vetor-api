@@ -11,7 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 class ObrasApiViewSet(ModelViewSet):
     queryset = Obras.objects.all()
     serializer_class = ObrasSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     @action(detail=True, methods=["post"], url_path="add-servicos")
