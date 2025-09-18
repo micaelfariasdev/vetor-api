@@ -11,7 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 class ObrasApiViewSet(ModelViewSet):
     queryset = Obras.objects.all()
     serializer_class = ObrasSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     @action(detail=True, methods=["post"], url_path="add-servicos")
@@ -64,11 +64,43 @@ class ObrasApiViewSet(ModelViewSet):
 
         return Response(dic)
 
+    @action(detail=True, methods=["GET"], url_path="servicos")
+    def servicos(self, request, pk=None):
+        instance = self.get_object()
+        
+        servicosUnidades_queryset = ServicoUnidade.objects.filter(unidade__obra=instance)
+        
+        serializerservicosUnidades = ServicosUnidadeSerializer(servicosUnidades_queryset, many=True)
+        servicos_unidades_data = serializerservicosUnidades.data
+        
+        
+        servicos_mapa = {}
+        for item in servicos_unidades_data:
+            unidade_id = item['unidade'] 
+            servico_nome = item['Servico_nome']
+            progresso = item['progresso']
+            
+            if unidade_id not in servicos_mapa:
+                servicos_mapa[unidade_id] = {}
+                
+            servicos_mapa[unidade_id][servico_nome] = progresso
+
+        serializer_instance = self.get_serializer(instance)
+        dic = serializer_instance.data 
+        
+        for andar in dic['andares']:
+            for unidade in andar['unidades']: 
+                unidade_id = unidade['id']
+                
+                if unidade_id in servicos_mapa:
+                    unidade.update(servicos_mapa[unidade_id])
+
+        return Response(dic)
 
 class ServicosApiViewSet(ModelViewSet):
     queryset = Servicos.objects.all()
     serializer_class = ServicosSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
 
@@ -82,7 +114,7 @@ class UnidadeApiViewSet(ModelViewSet):
 class ServicosUnidadeApiViewSet(ModelViewSet):
     queryset = ServicoUnidade.objects.all()
     serializer_class = ServicosUnidadeSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     @action(detail=False, methods=["post"], url_path="get-servicos")

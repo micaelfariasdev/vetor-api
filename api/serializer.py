@@ -106,6 +106,8 @@ class ServicosObraSerializer(serializers.ModelSerializer):
 
 
 
+
+
 class ObrasSerializer(serializers.ModelSerializer):
     servicos = ServicosObraSerializer(many=True, read_only=True)
     unidades = serializers.SerializerMethodField()
