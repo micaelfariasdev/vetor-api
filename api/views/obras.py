@@ -11,7 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 class ObrasApiViewSet(ModelViewSet):
     queryset = Obras.objects.all()
     serializer_class = ObrasSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     @action(detail=True, methods=["post"], url_path="add-servicos")
@@ -100,7 +100,7 @@ class ObrasApiViewSet(ModelViewSet):
 class ServicosApiViewSet(ModelViewSet):
     queryset = Servicos.objects.all()
     serializer_class = ServicosSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
 
@@ -114,7 +114,7 @@ class UnidadeApiViewSet(ModelViewSet):
 class ServicosUnidadeApiViewSet(ModelViewSet):
     queryset = ServicoUnidade.objects.all()
     serializer_class = ServicosUnidadeSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
 
     @action(detail=False, methods=["post"], url_path="get-servicos")
