@@ -158,7 +158,7 @@ class ServicosUnidadeApiViewSet(ModelViewSet):
             )
 
     @action(detail=False, methods=["post"], url_path="get-servicos-detail")
-    def get_servicos(self, request):
+    def get_servicos_detail(self, request):
         serv = request.data.get("serv")
         if not serv:
             return Response({"detail": "Parâmetro 'serv' é obrigatório"}, status=status.HTTP_400_BAD_REQUEST)
