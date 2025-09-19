@@ -172,6 +172,44 @@ class ServicosUnidadeApiViewSet(ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    @action(detail=False, methods=["post"], url_path="salvar-servicos-detail")
+    def salvar_servicos_detail(self, request):
+        serv = request.data.get("servico")
+        unidades = request.data.get("unidades")
+
+        for unidades, progresso in unidades.items():
+            try:
+                ponto_existe = self.queryset.filter(
+                    servico=serv,
+                    unidade=unidades
+                ).first()
+
+                dados = {
+                    'progresso': progresso,
+                }
+
+                if ponto_existe:
+                    serializer = self.get_serializer(
+                        ponto_existe, data=dados, partial=True)
+                else:
+
+                    serializer = self.get_serializer(data=dados)
+
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+
+            except Exception as e:
+                print(f"Erro no registro {unidades}: {e}")
+
+                return Response({
+                    "erro_no_registro": unidades,
+                    "registro": unidades,
+                    "detalhes": str(e)
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'succes': 'Unidades criadas/editadas com sucesso'}, status=status.HTTP_200_OK)
+
+
 
     @action(detail=False, methods=["post"], url_path="salvar-servicos")
     def salvar_servicos(self, request):
