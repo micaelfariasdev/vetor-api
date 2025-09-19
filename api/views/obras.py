@@ -157,6 +157,22 @@ class ServicosUnidadeApiViewSet(ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
+    @action(detail=False, methods=["post"], url_path="get-servicos-detail")
+    def get_servicos(self, request):
+        serv = request.data.get("serv")
+        if not serv:
+            return Response({"detail": "Parâmetro 'serv' é obrigatório"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            servicos_unidade = ServicoUnidade.objects.filter(servico=serv)
+            serializer = self.get_serializer(servicos_unidade, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"detail": f"Ocorreu um erro ao processar a requisição: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
     @action(detail=False, methods=["post"], url_path="salvar-servicos")
     def salvar_servicos(self, request):
         data = request.data
