@@ -416,7 +416,6 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 }
                 resultado.append(data)
 
-        return HttpResponse(resultado, status=200)
         if len(resultado) > 1:
             pdf = requests.post(
             'http://64.181.171.161/gerar-pdf', json=resultado)
