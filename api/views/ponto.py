@@ -275,6 +275,8 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                         hr_ext += horas_trab
                         dif_hora = horas_trab
                     dados = ColaboradorSerializer(colaborador).data
+                    if not dados:
+                        return HttpResponse("dados não encontrado.", status=200)
                     dados['horas-faltando'] = formatar_horas(hr_falt)
                     dados['horas-extras'] = formatar_horas(hr_ext)
                     dados['horas-feriado-domingo'] = formatar_horas(hr_fer)
