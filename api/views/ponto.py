@@ -422,7 +422,7 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
             return HttpResponse(pdf, content_type="application/pdf")
         else:
             return HttpResponse("ponto não encontrado.", status=200)
-            
+        
 
     except MesPonto.DoesNotExist:
         return HttpResponse("Mês de ponto não encontrado.", status=404)
