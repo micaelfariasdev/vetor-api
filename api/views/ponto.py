@@ -419,7 +419,7 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 resultado.append(data)
 
         pdf = requests.post(
-        'http://192.168.100.32:5000/relatorio/ponto', json=resultado)
+        'http://64.181.171.161//relatorio/ponto', json=resultado)
 
         return HttpResponse(pdf)
         
