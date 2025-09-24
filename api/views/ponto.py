@@ -274,17 +274,9 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                     elif dia_semana == "SÁB":
                         hr_ext += horas_trab
                         dif_hora = horas_trab
-                    dados = ColaboradorSerializer(colaborador).data
-                    if not dados:
-                        return HttpResponse("dados não encontrado.", status=200)
-                    dados['horas-faltando'] = formatar_horas(hr_falt)
-                    dados['horas-extras'] = formatar_horas(hr_ext)
-                    dados['horas-feriado-domingo'] = formatar_horas(hr_fer)
-                    dados['falta'] = falta
-                    dados['mes'] = mes_ponto.mes
-                    dados['ano'] = mes_ponto.ano
-                    ...
 
+            
+                    
                 dataPonto.append(formatar_horas(dif_hora))
                 if ponto['feriado']:
                     dataPonto.append('feriado')
@@ -299,6 +291,16 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
 
                 data_str = ponto['data'].isoformat()
                 pontos_dic[data_str] = dataPonto
+
+            dados = ColaboradorSerializer(colaborador).data
+            if not dados:
+                return HttpResponse("dados não encontrado.", status=200)
+            dados['horas-faltando'] = formatar_horas(hr_falt)
+            dados['horas-extras'] = formatar_horas(hr_ext)
+            dados['horas-feriado-domingo'] = formatar_horas(hr_fer)
+            dados['falta'] = falta
+            dados['mes'] = mes_ponto.mes
+            dados['ano'] = mes_ponto.ano
             data = {
                 'dados': dados,
                 'pontos': pontos_dic
@@ -416,13 +418,10 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 }
                 resultado.append(data)
 
-        if len(resultado) > 1:
-            pdf = requests.post(
-            'http://64.181.171.161/gerar-pdf', json=resultado)
+        pdf = requests.post(
+        'http://64.181.171.161/gerar-pdf', json=resultado)
 
-            return HttpResponse(pdf, content_type="application/pdf")
-        else:
-            return HttpResponse("ponto não encontrado.", status=200)
+        return HttpResponse(pdf, content_type="application/pdf")
         
 
     except MesPonto.DoesNotExist:

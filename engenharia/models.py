@@ -97,7 +97,7 @@ class Colaborador(models.Model):
     cargo = models.CharField(max_length=100)
     situacao = models.CharField(choices=[(
         'ASSINADO', 'Assinado'), ('FREE', 'Freelancer'), ('PJ', 'Empreiteiro')], max_length=20, default='ASSINADO')
-    dados = models.CharField(max_length=100, blank=True, null=-True,)
+    dados = models.CharField(max_length=100, blank=True, null=True,)
 
     def __str__(self):
         return f'{self.nome} - {self.cargo}'
