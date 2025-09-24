@@ -201,6 +201,8 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 dia = dia.isoformat()
                 pontos_dic[dia] = [dia_semana]
             pontos = colaborador.pontos.filter(data__range=[ini, fim])
+            if not pontos.exists():
+                return
             hr_falt = timedelta()
             hr_ext = timedelta()
             hr_fer = timedelta()
@@ -412,50 +414,7 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 }
                 resultado.append(data)
 
-        # data = list(
-        #     pontos.values(
-        #         "id",
-        #         "colaborador__id",
-        #         "colaborador__nome",
-        #         "colaborador__cargo",
-        #         "colaborador__obra__nome",
-        #         "data",
-        #         "feriado",
-        #         "ferias",
-        #         "falta",
-        #         "atestado",
-        #         "entrada_manha",
-        #         "saida_manha",
-        #         "entrada_tarde",
-        #         "saida_tarde",
-        #         "horas_trabalhadas",
-        #     )
-        # )
-
-        # resultado = []
-        # for _, registros in groupby(data, key=itemgetter("colaborador__id")):
-        #     registros_list = list(registros)
-        #     resultado.append({
-        #         "colaborador": registros_list[0]['colaborador__nome'],
-        #         "cargo": registros_list[0]['colaborador__cargo'],
-        #         "obra": registros_list[0]['colaborador__obra__nome'],
-        #         "mes": int(mes_ponto.mes),
-        #         "ano": int(mes_ponto.ano),
-        #         "pontos": [
-        #             {
-        #                 "data": str(r["data"]),
-        #                 "feriado": str(r["feriado"]),
-        #                 "falta": str(r["falta"]),
-        #                 "ferias": str(r["ferias"]),
-        #                 "atestado": str(r["atestado"]),
-        #                 "entrada_manha": str(r["entrada_manha"]) if not r["entrada_manha"] == None else None,
-        #                 "saida_manha": str(r["saida_manha"]) if not r["saida_manha"] == None else None,
-        #                 "entrada_tarde": str(r["entrada_tarde"]) if not r["entrada_tarde"] == None else None,
-        #                 "saida_tarde": str(r["saida_tarde"]) if not r["saida_tarde"] == None else None,
-        #                 "horas_trabalhadas": str(r["horas_trabalhadas"]),
-        #             } for r in registros_list
-        #         ]
-        #     })
+        
 
         pdf = requests.post(
             'http://64.181.171.161/gerar-pdf', json=resultado)
