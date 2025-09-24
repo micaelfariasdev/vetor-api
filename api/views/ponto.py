@@ -202,7 +202,7 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 pontos_dic[dia] = [dia_semana]
             pontos = colaborador.pontos.filter(data__range=[ini, fim])
             if not pontos.exists():
-                return HttpResponse("ponto não encontrado.", status=404)
+                return HttpResponse("ponto não encontrado.", status=200)
             hr_falt = timedelta()
             hr_ext = timedelta()
             hr_fer = timedelta()
