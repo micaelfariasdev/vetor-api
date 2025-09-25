@@ -1,3 +1,4 @@
+from django.core.serializers import serialize
 from django.http import HttpResponse
 
 from rest_framework import status
@@ -276,7 +277,8 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                         jornada_diaria = timedelta(hours=9)
                         if horas_trab <= jornada_diaria:
                             hr_falt += jornada_diaria - horas_trab
-                            dif_hora = horas_trab - jornada_diaria
+                            dif_hora = jornada_diaria - horas_trab
+                            dif_hora = f'-{formatar_horas(dif_hora)}'
                         elif horas_trab > jornada_diaria:
                             hr_ext += horas_trab - jornada_diaria
                             dif_hora = horas_trab - jornada_diaria
@@ -292,13 +294,15 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                         hr_ext += horas_trab
                         dif_hora = horas_trab
 
-            
-                dataPonto.append(formatar_horas(dif_hora))
+                if isinstance(dif_hora, datetime) or isinstance(dif_hora, timedelta):
+                    dataPonto.append(formatar_horas(dif_hora))
+                else:
+                    dataPonto.append(dif_hora)
+
                 if ponto['feriado']:
                     dataPonto.append('feriado')
                 elif 'sem_feriado' in ponto:
                     dataPonto.append('sem_feriado')
-                
 
                 data_str = ponto['data'].isoformat()
                 pontos_dic[data_str] = dataPonto
@@ -385,7 +389,7 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                     else:
                         h, m = ponto['horas_trabalhadas'].split(':')
                         horas_trab = timedelta(hours=int(h), minutes=int(m))
-                        dif_hora = timedelta(hours=int(h), minutes=int(m))
+                        dif_hora = timedelta()
 
                         if dia_semana == "DOM" or ponto['feriado'] == True:
                             hr_fer += horas_trab
@@ -402,7 +406,8 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                             jornada_diaria = timedelta(hours=9)
                             if horas_trab <= jornada_diaria:
                                 hr_falt += jornada_diaria - horas_trab
-                                dif_hora = horas_trab - jornada_diaria
+                                dif_hora = jornada_diaria - horas_trab
+                                dif_hora = f'-{formatar_horas(dif_hora)}'
                             elif horas_trab > jornada_diaria:
                                 hr_ext += horas_trab - jornada_diaria
                                 dif_hora = horas_trab - jornada_diaria
@@ -418,17 +423,18 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                             hr_ext += horas_trab
                             dif_hora = horas_trab
 
-                
-                    dataPonto.append(formatar_horas(dif_hora))
+                    if isinstance(dif_hora, datetime) or isinstance(dif_hora, timedelta):
+                        dataPonto.append(formatar_horas(dif_hora))
+                    else:
+                        dataPonto.append(dif_hora)
                     if ponto['feriado']:
                         dataPonto.append('feriado')
                     elif 'sem_feriado' in ponto:
                         dataPonto.append('sem_feriado')
-                    
 
                     data_str = ponto['data'].isoformat()
                     pontos_dic[data_str] = dataPonto
-                    
+
                 dados = ColaboradorSerializer(colaborador).data
                 if not dados:
                     return HttpResponse("dados não encontrado.", status=200)
@@ -444,15 +450,10 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 }
                 resultado.append(data)
 
-        import json
-        with open("dados.json", "w", encoding="utf-8") as arquivo:
-            json.dump(resultado, arquivo, ensure_ascii=False, indent=4)
-
         pdf = requests.post(
-        'http://64.181.171.161/relatorio/ponto', json=resultado)
+            'http://64.181.171.161/relatorio/ponto', json=resultado)
 
         return HttpResponse(pdf)
-        
 
     except MesPonto.DoesNotExist:
         return HttpResponse("Mês de ponto não encontrado.", status=404)
