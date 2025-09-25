@@ -330,26 +330,26 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 dataPonto.append(ponto['horas_trabalhadas'])
 
                 if ponto['atestado'] == True or ponto['ferias'] == True:
+                    dataPonto.append('00:00')
                     if ponto['atestado']:
                         dataPonto.append('atestado')
                     if ponto['ferias']:
                         dataPonto.append('ferias')
-                    dataPonto.append('00:00')
                     data_str = ponto['data'].isoformat()
                     pontos_dic[data_str] = dataPonto
                     continue
                 elif ponto['falta'] == True and ponto['data'].month == mes_ponto.mes:
                     falta += 1
+                    dataPonto.append('00:00')
                     if ponto['falta']:
                         dataPonto.append('falta')
-                    dataPonto.append('00:00')
                     data_str = ponto['data'].isoformat()
                     pontos_dic[data_str] = dataPonto
                     continue
                 elif ponto['falta'] == True:
+                    dataPonto.append('00:00')
                     if ponto['falta']:
                         dataPonto.append('falta')
-                    dataPonto.append('00:00')
                     data_str = ponto['data'].isoformat()
                     pontos_dic[data_str] = dataPonto
                     continue
