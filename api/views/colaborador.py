@@ -91,14 +91,14 @@ class ColaboradorApiViewSet(ModelViewSet):
                 h, m = ponto['horas_trabalhadas'].split(':')
                 horas_trab = timedelta(hours=int(h), minutes=int(m))
 
-                if 'sem_feriado' in ponto:
+                if dia_semana == "DOM" or ponto['feriado'] == True:
+                    hr_fer += horas_trab
+                elif 'sem_feriado' in ponto:
                     jornada_diaria = timedelta(hours=8)
                     if horas_trab < jornada_diaria:
                         hr_falt += jornada_diaria - horas_trab
                     elif horas_trab > jornada_diaria:
                         hr_ext += horas_trab - jornada_diaria
-                elif dia_semana == "DOM" or ponto['feriado'] == True:
-                    hr_fer += horas_trab
                 elif dia_semana not in ["SEX", "SÁB", "DOM"]:
                     jornada_diaria = timedelta(hours=9)
                     if horas_trab < jornada_diaria:
