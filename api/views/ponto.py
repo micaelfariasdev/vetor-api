@@ -231,6 +231,16 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 dataPonto.append(str(ponto['entrada_tarde'])[:5])
                 dataPonto.append(str(ponto['saida_tarde'])[:5])
                 dataPonto.append(ponto['horas_trabalhadas'])
+                if ponto['feriado']:
+                    dataPonto.append('feriado')
+                if ponto['atestado']:
+                    dataPonto.append('atestado')
+                if ponto['falta']:
+                    dataPonto.append('falta')
+                if ponto['ferias']:
+                    dataPonto.append('ferias')
+                if 'sem_feriado' in ponto:
+                    dataPonto.append('sem_feriado')
 
                 if ponto['atestado'] == True or ponto['ferias'] == True:
                     continue
@@ -278,16 +288,7 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
             
                     
                 dataPonto.append(formatar_horas(dif_hora))
-                if ponto['feriado']:
-                    dataPonto.append('feriado')
-                if ponto['atestado']:
-                    dataPonto.append('atestado')
-                if ponto['falta']:
-                    dataPonto.append('falta')
-                if ponto['ferias']:
-                    dataPonto.append('ferias')
-                if 'sem_feriado' in ponto:
-                    dataPonto.append('sem_feriado')
+                
 
                 data_str = ponto['data'].isoformat()
                 pontos_dic[data_str] = dataPonto
@@ -346,6 +347,16 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                     dataPonto.append(str(ponto['entrada_tarde'])[:5])
                     dataPonto.append(str(ponto['saida_tarde'])[:5])
                     dataPonto.append(ponto['horas_trabalhadas'])
+                    if ponto['feriado']:
+                        dataPonto.append('feriado')
+                    if ponto['atestado']:
+                        dataPonto.append('atestado')
+                    if ponto['falta']:
+                        dataPonto.append('falta')
+                    if ponto['ferias']:
+                        dataPonto.append('ferias')
+                    if 'sem_feriado' in ponto:
+                        dataPonto.append('sem_feriado')
 
                     if ponto['atestado'] == True or ponto['ferias'] == True:
                         continue
@@ -399,16 +410,7 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                         ...
 
                     dataPonto.append(formatar_horas(dif_hora))
-                    if ponto['feriado']:
-                        dataPonto.append('feriado')
-                    if ponto['atestado']:
-                        dataPonto.append('atestado')
-                    if ponto['falta']:
-                        dataPonto.append('falta')
-                    if ponto['ferias']:
-                        dataPonto.append('ferias')
-                    if 'sem_feriado' in ponto:
-                        dataPonto.append('sem_feriado')
+                    
 
                     data_str = ponto['data'].isoformat()
                     pontos_dic[data_str] = dataPonto
