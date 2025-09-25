@@ -269,7 +269,8 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                         jornada_diaria = timedelta(hours=8)
                         if horas_trab < jornada_diaria:
                             hr_falt += jornada_diaria - horas_trab
-                            dif_hora = horas_trab - jornada_diaria
+                            dif_hora = jornada_diaria - horas_trab
+                            dif_hora = f'-{formatar_horas(dif_hora)}'
                         elif horas_trab >= jornada_diaria:
                             hr_ext += horas_trab - jornada_diaria
                             dif_hora = horas_trab - jornada_diaria
@@ -286,7 +287,8 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                         jornada_diaria = timedelta(hours=8)
                         if horas_trab <= jornada_diaria:
                             hr_falt += jornada_diaria - horas_trab
-                            dif_hora = horas_trab - jornada_diaria
+                            dif_hora = jornada_diaria - horas_trab
+                            dif_hora = f'-{formatar_horas(dif_hora)}'
                         elif horas_trab > jornada_diaria:
                             hr_ext += horas_trab - jornada_diaria
                             dif_hora = horas_trab - jornada_diaria
@@ -398,7 +400,8 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                             jornada_diaria = timedelta(hours=8)
                             if horas_trab < jornada_diaria:
                                 hr_falt += jornada_diaria - horas_trab
-                                dif_hora = horas_trab - jornada_diaria
+                                dif_hora = jornada_diaria - horas_trab
+                                dif_hora = f'-{formatar_horas(dif_hora)}'
                             elif horas_trab >= jornada_diaria:
                                 hr_ext += horas_trab - jornada_diaria
                                 dif_hora = horas_trab - jornada_diaria
@@ -415,7 +418,8 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                             jornada_diaria = timedelta(hours=8)
                             if horas_trab <= jornada_diaria:
                                 hr_falt += jornada_diaria - horas_trab
-                                dif_hora = horas_trab - jornada_diaria
+                                dif_hora = jornada_diaria - horas_trab
+                                dif_hora = f'-{formatar_horas(dif_hora)}'
                             elif horas_trab > jornada_diaria:
                                 hr_ext += horas_trab - jornada_diaria
                                 dif_hora = horas_trab - jornada_diaria
