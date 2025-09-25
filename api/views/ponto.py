@@ -390,11 +390,11 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                         dif_hora = horas_trab
 
             
+                dataPonto.append(formatar_horas(dif_hora))
                 if ponto['feriado']:
                     dataPonto.append('feriado')
                 elif 'sem_feriado' in ponto:
                     dataPonto.append('sem_feriado')
-                dataPonto.append(formatar_horas(dif_hora))
                 
 
                 data_str = ponto['data'].isoformat()
@@ -516,11 +516,11 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                             dif_hora = horas_trab
 
                 
+                    dataPonto.append(formatar_horas(dif_hora))
                     if ponto['feriado']:
                         dataPonto.append('feriado')
                     elif 'sem_feriado' in ponto:
                         dataPonto.append('sem_feriado')
-                    dataPonto.append(formatar_horas(dif_hora))
                     
 
                     data_str = ponto['data'].isoformat()
