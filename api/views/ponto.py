@@ -259,7 +259,7 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 else:
                     h, m = ponto['horas_trabalhadas'].split(':')
                     horas_trab = timedelta(hours=int(h), minutes=int(m))
-                    dif_hora = timedelta(hours=int(h), minutes=int(m))
+                    dif_hora = timedelta()
 
                     if dia_semana == "DOM" or ponto['feriado'] == True:
                         hr_fer += horas_trab
