@@ -418,6 +418,10 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                 }
                 resultado.append(data)
 
+        import json
+        with open("dados.json", "w", encoding="utf-8") as arquivo:
+            json.dump(resultado, arquivo, ensure_ascii=False, indent=4)
+
         pdf = requests.post(
         'http://64.181.171.161/relatorio/ponto', json=resultado)
 
