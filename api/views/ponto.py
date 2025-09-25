@@ -428,7 +428,16 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
 
                     data_str = ponto['data'].isoformat()
                     pontos_dic[data_str] = dataPonto
-                
+                    
+                dados = ColaboradorSerializer(colaborador).data
+                if not dados:
+                    return HttpResponse("dados não encontrado.", status=200)
+                dados['horas-faltando'] = formatar_horas(hr_falt)
+                dados['horas-extras'] = formatar_horas(hr_ext)
+                dados['horas-feriado-domingo'] = formatar_horas(hr_fer)
+                dados['falta'] = falta
+                dados['mes'] = mes_ponto.mes
+                dados['ano'] = mes_ponto.ano
                 data = {
                     'dados': dados,
                     'pontos': pontos_dic
