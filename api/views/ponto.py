@@ -289,20 +289,249 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
             fim = date(int(mes_ponto.ano), int(mes_ponto.mes), 25)
 
         resultado = []
-
         if col:
             colaborador = mes_ponto.obra.colaboradores.get(id=col)
-            data, erro = processar_colaborador(colaborador, ini, fim, mes_ponto)
-            if erro:
-                return erro
-            resultado.append(data)
-        else:
-            for colaborador in mes_ponto.obra.colaboradores.all():
-                data, erro = processar_colaborador(colaborador, ini, fim, mes_ponto)
-                if erro:
+            pontos_dic = {}
+            mes_completo = gerar_datas_no_intervalo(ini, fim)
+            for dia in mes_completo:
+                dia_semana = formatar_semana(dia)
+                dia = dia.isoformat()
+                pontos_dic[dia] = [dia_semana]
+            pontos = colaborador.pontos.filter(data__range=[ini, fim])
+            if not pontos.exists():
+                return HttpResponse("ponto não encontrado.", status=200)
+            hr_falt = timedelta()
+            hr_ext = timedelta()
+            hr_fer = timedelta()
+            falta = 0
+            pontos = list(pontos.values())
+            registros_feriado = filter(
+                lambda registro: registro['feriado'] == True, pontos)
+            datas_feriado = [registro['data']
+                             for registro in registros_feriado]
+            for feriado in datas_feriado:
+                if formatar_semana(feriado) == "SÁB":
+                    data_inicio = feriado - timedelta(days=5)
+                    data_fim = feriado - timedelta(days=1)
+                    semana = list(
+                        filter(lambda r:
+                               data_inicio <= r['data'] <= data_fim, pontos))
+                    for s in semana:
+                        s['sem_feriado'] = True
+
+            for ponto in pontos:
+                dia_semana = formatar_semana(ponto['data'])
+                dataPonto = []
+                dataPonto.append(dia_semana)
+                dataPonto.append(str(ponto['entrada_manha'])[:5])
+                dataPonto.append(str(ponto['saida_manha'])[:5])
+                dataPonto.append(str(ponto['entrada_tarde'])[:5])
+                dataPonto.append(str(ponto['saida_tarde'])[:5])
+                dataPonto.append(ponto['horas_trabalhadas'])
+
+                if ponto['atestado'] == True or ponto['ferias'] == True:
+                    if ponto['atestado']:
+                        dataPonto.append('atestado')
+                    if ponto['ferias']:
+                        dataPonto.append('ferias')
+                    dataPonto.append('00:00')
+                    data_str = ponto['data'].isoformat()
+                    pontos_dic[data_str] = dataPonto
                     continue
-                resultado.append(data)
+                elif ponto['falta'] == True and ponto['data'].month == mes_ponto.mes:
+                    falta += 1
+                    if ponto['falta']:
+                        dataPonto.append('falta')
+                    dataPonto.append('00:00')
+                    data_str = ponto['data'].isoformat()
+                    pontos_dic[data_str] = dataPonto
+                    continue
+                elif ponto['falta'] == True:
+                    if ponto['falta']:
+                        dataPonto.append('falta')
+                    dataPonto.append('00:00')
+                    data_str = ponto['data'].isoformat()
+                    pontos_dic[data_str] = dataPonto
+                    continue
+                else:
+                    h, m = ponto['horas_trabalhadas'].split(':')
+                    horas_trab = timedelta(hours=int(h), minutes=int(m))
+                    dif_hora = timedelta(hours=int(h), minutes=int(m))
+
+                    if 'sem_feriado' in ponto:
+                        jornada_diaria = timedelta(hours=8)
+                        if horas_trab < jornada_diaria:
+                            hr_falt += jornada_diaria - horas_trab
+                            dif_hora = horas_trab - jornada_diaria
+                        elif horas_trab >= jornada_diaria:
+                            hr_ext += horas_trab - jornada_diaria
+                            dif_hora = horas_trab - jornada_diaria
+                    elif dia_semana == "DOM" or ponto['feriado'] == True:
+                        hr_fer += horas_trab
+                        dif_hora = horas_trab
+                    elif dia_semana not in ["SEX", "SÁB", "DOM"]:
+                        jornada_diaria = timedelta(hours=9)
+                        if horas_trab <= jornada_diaria:
+                            hr_falt += jornada_diaria - horas_trab
+                            dif_hora = horas_trab - jornada_diaria
+                        elif horas_trab > jornada_diaria:
+                            hr_ext += horas_trab - jornada_diaria
+                            dif_hora = horas_trab - jornada_diaria
+                    elif dia_semana == "SEX":
+                        jornada_diaria = timedelta(hours=8)
+                        if horas_trab <= jornada_diaria:
+                            hr_falt += jornada_diaria - horas_trab
+                            dif_hora = horas_trab - jornada_diaria
+                        elif horas_trab > jornada_diaria:
+                            hr_ext += horas_trab - jornada_diaria
+                            dif_hora = horas_trab - jornada_diaria
+                    elif dia_semana == "SÁB":
+                        hr_ext += horas_trab
+                        dif_hora = horas_trab
+
+            
+                if ponto['feriado']:
+                    dataPonto.append('feriado')
+                elif 'sem_feriado' in ponto:
+                    dataPonto.append('sem_feriado')
+                dataPonto.append(formatar_horas(dif_hora))
                 
+
+                data_str = ponto['data'].isoformat()
+                pontos_dic[data_str] = dataPonto
+
+            dados = ColaboradorSerializer(colaborador).data
+            if not dados:
+                return HttpResponse("dados não encontrado.", status=200)
+            dados['horas-faltando'] = formatar_horas(hr_falt)
+            dados['horas-extras'] = formatar_horas(hr_ext)
+            dados['horas-feriado-domingo'] = formatar_horas(hr_fer)
+            dados['falta'] = falta
+            dados['mes'] = mes_ponto.mes
+            dados['ano'] = mes_ponto.ano
+            data = {
+                'dados': dados,
+                'pontos': pontos_dic
+            }
+            resultado.append(data)
+
+        else:
+            colaboradores = mes_ponto.obra.colaboradores.all()
+
+            for colaborador in colaboradores:
+                pontos_dic = {}
+                mes_completo = gerar_datas_no_intervalo(ini, fim)
+                for dia in mes_completo:
+                    dia_semana = formatar_semana(dia)
+                    dia = dia.isoformat()
+                    pontos_dic[dia] = [dia_semana]
+                pontos = colaborador.pontos.filter(data__range=[ini, fim])
+                hr_falt = timedelta()
+                hr_ext = timedelta()
+                hr_fer = timedelta()
+                falta = 0
+                pontos = list(pontos.values())
+                registros_feriado = filter(
+                    lambda registro: registro['feriado'] == True, pontos)
+                datas_feriado = [registro['data']
+                                 for registro in registros_feriado]
+                for feriado in datas_feriado:
+                    if formatar_semana(feriado) == "SÁB":
+                        data_inicio = feriado - timedelta(days=5)
+                        data_fim = feriado - timedelta(days=1)
+                        semana = list(
+                            filter(lambda r:
+                                   data_inicio <= r['data'] <= data_fim, pontos))
+                        for s in semana:
+                            s['sem_feriado'] = True
+
+                for ponto in pontos:
+                    dia_semana = formatar_semana(ponto['data'])
+                    dataPonto = []
+                    dataPonto.append(dia_semana)
+                    dataPonto.append(str(ponto['entrada_manha'])[:5])
+                    dataPonto.append(str(ponto['saida_manha'])[:5])
+                    dataPonto.append(str(ponto['entrada_tarde'])[:5])
+                    dataPonto.append(str(ponto['saida_tarde'])[:5])
+                    dataPonto.append(ponto['horas_trabalhadas'])
+
+                    if ponto['atestado'] == True or ponto['ferias'] == True:
+                        if ponto['atestado']:
+                            dataPonto.append('atestado')
+                        if ponto['ferias']:
+                            dataPonto.append('ferias')
+                        dataPonto.append('00:00')
+                        data_str = ponto['data'].isoformat()
+                        pontos_dic[data_str] = dataPonto
+                        continue
+                    elif ponto['falta'] == True and ponto['data'].month == mes_ponto.mes:
+                        falta += 1
+                        if ponto['falta']:
+                            dataPonto.append('falta')
+                        dataPonto.append('00:00')
+                        data_str = ponto['data'].isoformat()
+                        pontos_dic[data_str] = dataPonto
+                        continue
+                    elif ponto['falta'] == True:
+                        if ponto['falta']:
+                            dataPonto.append('falta')
+                        dataPonto.append('00:00')
+                        data_str = ponto['data'].isoformat()
+                        pontos_dic[data_str] = dataPonto
+                        continue
+                    else:
+                        h, m = ponto['horas_trabalhadas'].split(':')
+                        horas_trab = timedelta(hours=int(h), minutes=int(m))
+                        dif_hora = timedelta(hours=int(h), minutes=int(m))
+
+                        if 'sem_feriado' in ponto:
+                            jornada_diaria = timedelta(hours=8)
+                            if horas_trab < jornada_diaria:
+                                hr_falt += jornada_diaria - horas_trab
+                                dif_hora = horas_trab - jornada_diaria
+                            elif horas_trab >= jornada_diaria:
+                                hr_ext += horas_trab - jornada_diaria
+                                dif_hora = horas_trab - jornada_diaria
+                        elif dia_semana == "DOM" or ponto['feriado'] == True:
+                            hr_fer += horas_trab
+                            dif_hora = horas_trab
+                        elif dia_semana not in ["SEX", "SÁB", "DOM"]:
+                            jornada_diaria = timedelta(hours=9)
+                            if horas_trab <= jornada_diaria:
+                                hr_falt += jornada_diaria - horas_trab
+                                dif_hora = horas_trab - jornada_diaria
+                            elif horas_trab > jornada_diaria:
+                                hr_ext += horas_trab - jornada_diaria
+                                dif_hora = horas_trab - jornada_diaria
+                        elif dia_semana == "SEX":
+                            jornada_diaria = timedelta(hours=8)
+                            if horas_trab <= jornada_diaria:
+                                hr_falt += jornada_diaria - horas_trab
+                                dif_hora = horas_trab - jornada_diaria
+                            elif horas_trab > jornada_diaria:
+                                hr_ext += horas_trab - jornada_diaria
+                                dif_hora = horas_trab - jornada_diaria
+                        elif dia_semana == "SÁB":
+                            hr_ext += horas_trab
+                            dif_hora = horas_trab
+
+                
+                    if ponto['feriado']:
+                        dataPonto.append('feriado')
+                    elif 'sem_feriado' in ponto:
+                        dataPonto.append('sem_feriado')
+                    dataPonto.append(formatar_horas(dif_hora))
+                    
+
+                    data_str = ponto['data'].isoformat()
+                    pontos_dic[data_str] = dataPonto
+                
+                data = {
+                    'dados': dados,
+                    'pontos': pontos_dic
+                }
+                resultado.append(data)
+
         import json
         with open("dados.json", "w", encoding="utf-8") as arquivo:
             json.dump(resultado, arquivo, ensure_ascii=False, indent=4)

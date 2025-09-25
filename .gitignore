@@ -144,3 +144,5 @@ venv/
 gunicorn-error-log
 
 */migrations
+
+dados.json
