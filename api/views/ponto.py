@@ -268,27 +268,36 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                     elif 'sem_feriado' in ponto:
                         jornada_diaria = timedelta(hours=8)
                         if horas_trab < jornada_diaria:
-                            hr_falt += jornada_diaria - horas_trab
                             dif_hora = jornada_diaria - horas_trab
-                            dif_hora = f'-{formatar_horas(dif_hora)}'
+                            if dif_hora <= timedelta(minutes=10):
+                                dif_hora = f'-00:00'
+                            else:
+                                hr_falt += jornada_diaria - horas_trab
+                                dif_hora = f'-{formatar_horas(dif_hora)}'
                         elif horas_trab >= jornada_diaria:
                             hr_ext += horas_trab - jornada_diaria
                             dif_hora = horas_trab - jornada_diaria
                     elif dia_semana not in ["SEX", "SÁB", "DOM"]:
                         jornada_diaria = timedelta(hours=9)
                         if horas_trab <= jornada_diaria:
-                            hr_falt += jornada_diaria - horas_trab
                             dif_hora = jornada_diaria - horas_trab
-                            dif_hora = f'-{formatar_horas(dif_hora)}'
+                            if dif_hora <= timedelta(minutes=10):
+                                dif_hora = f'-00:00'
+                            else:
+                                hr_falt += jornada_diaria - horas_trab
+                                dif_hora = f'-{formatar_horas(dif_hora)}'
                         elif horas_trab > jornada_diaria:
                             hr_ext += horas_trab - jornada_diaria
                             dif_hora = horas_trab - jornada_diaria
                     elif dia_semana == "SEX":
                         jornada_diaria = timedelta(hours=8)
                         if horas_trab <= jornada_diaria:
-                            hr_falt += jornada_diaria - horas_trab
                             dif_hora = jornada_diaria - horas_trab
-                            dif_hora = f'-{formatar_horas(dif_hora)}'
+                            if dif_hora <= timedelta(minutes=10):
+                                dif_hora = f'-00:00'
+                            else:
+                                hr_falt += jornada_diaria - horas_trab
+                                dif_hora = f'-{formatar_horas(dif_hora)}'
                         elif horas_trab > jornada_diaria:
                             hr_ext += horas_trab - jornada_diaria
                             dif_hora = horas_trab - jornada_diaria
@@ -399,27 +408,39 @@ def pdf_pontos_relatorio(request, mes_id, col=None):
                         elif 'sem_feriado' in ponto:
                             jornada_diaria = timedelta(hours=8)
                             if horas_trab < jornada_diaria:
-                                hr_falt += jornada_diaria - horas_trab
-                                dif_hora = jornada_diaria - horas_trab
-                                dif_hora = f'-{formatar_horas(dif_hora)}'
+                                if horas_trab < jornada_diaria:
+                                    dif_hora = jornada_diaria - horas_trab
+                                if dif_hora <= timedelta(minutes=10):
+                                    dif_hora = f'-00:00'
+                                else:
+                                    hr_falt += jornada_diaria - horas_trab
+                                    dif_hora = f'-{formatar_horas(dif_hora)}'
                             elif horas_trab >= jornada_diaria:
                                 hr_ext += horas_trab - jornada_diaria
                                 dif_hora = horas_trab - jornada_diaria
                         elif dia_semana not in ["SEX", "SÁB", "DOM"]:
                             jornada_diaria = timedelta(hours=9)
                             if horas_trab <= jornada_diaria:
-                                hr_falt += jornada_diaria - horas_trab
-                                dif_hora = jornada_diaria - horas_trab
-                                dif_hora = f'-{formatar_horas(dif_hora)}'
+                                if horas_trab < jornada_diaria:
+                                    dif_hora = jornada_diaria - horas_trab
+                                if dif_hora <= timedelta(minutes=10):
+                                    dif_hora = f'-00:00'
+                                else:
+                                    hr_falt += jornada_diaria - horas_trab
+                                    dif_hora = f'-{formatar_horas(dif_hora)}'
                             elif horas_trab > jornada_diaria:
                                 hr_ext += horas_trab - jornada_diaria
                                 dif_hora = horas_trab - jornada_diaria
                         elif dia_semana == "SEX":
                             jornada_diaria = timedelta(hours=8)
                             if horas_trab <= jornada_diaria:
-                                hr_falt += jornada_diaria - horas_trab
-                                dif_hora = jornada_diaria - horas_trab
-                                dif_hora = f'-{formatar_horas(dif_hora)}'
+                                if horas_trab < jornada_diaria:
+                                    dif_hora = jornada_diaria - horas_trab
+                                if dif_hora <= timedelta(minutes=10):
+                                    dif_hora = f'-00:00'
+                                else:
+                                    hr_falt += jornada_diaria - horas_trab
+                                    dif_hora = f'-{formatar_horas(dif_hora)}'
                             elif horas_trab > jornada_diaria:
                                 hr_ext += horas_trab - jornada_diaria
                                 dif_hora = horas_trab - jornada_diaria
