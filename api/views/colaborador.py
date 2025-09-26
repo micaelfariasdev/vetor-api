@@ -96,19 +96,22 @@ class ColaboradorApiViewSet(ModelViewSet):
                 elif 'sem_feriado' in ponto:
                     jornada_diaria = timedelta(hours=8)
                     if horas_trab < jornada_diaria:
-                        hr_falt += jornada_diaria - horas_trab
+                        if not (jornada_diaria - horas_trab) <= timedelta(minutes=10):
+                            hr_falt += jornada_diaria - horas_trab
                     elif horas_trab > jornada_diaria:
                         hr_ext += horas_trab - jornada_diaria
                 elif dia_semana not in ["SEX", "SÁB", "DOM"]:
                     jornada_diaria = timedelta(hours=9)
                     if horas_trab < jornada_diaria:
-                        hr_falt += jornada_diaria - horas_trab
+                        if not (jornada_diaria - horas_trab) <= timedelta(minutes=10):
+                            hr_falt += jornada_diaria - horas_trab
                     elif horas_trab > jornada_diaria:
                         hr_ext += horas_trab - jornada_diaria
                 elif dia_semana == "SEX":
                     jornada_diaria = timedelta(hours=8)
                     if horas_trab < jornada_diaria:
-                        hr_falt += jornada_diaria - horas_trab
+                        if not (jornada_diaria - horas_trab) <= timedelta(minutes=10):
+                            hr_falt += jornada_diaria - horas_trab
                     elif horas_trab > jornada_diaria:
                         hr_ext += horas_trab - jornada_diaria
                 elif dia_semana == "SÁB":
